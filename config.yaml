@@ -10,7 +10,7 @@ data:
   train_loss_dir: "charts/train_loss"
 
 features:
-  n_features: 5
+  n_features: 4
   categorical_columns:
     - 'Married/Single'
     - 'House_Ownership'
@@ -26,6 +26,7 @@ feature_engineering:
   max_samples: 10000
   use_autoencoder: true
   append_autoencoder_features: true
+  use_weighted_input_for_autoencoder: false  # If false, default to normalized input
   kraskov_mi:
     k_neighbors: 5
 
@@ -45,15 +46,25 @@ models:
         batch_size: 64
         hidden_size: 64
         num_layers: 2
-        dropout_rate: 0.3
+        dropout_rate: 0.2
         optimizer: "adam"
+        bidirectional: false
       mlp:
         epochs: 20
         learning_rate: 0.001
         batch_size: 64
         hidden_layers: [256, 128, 64, 32]
-        dropout_rate: 0.3
+        dropout_rate: 0.2
         optimizer: "adam"
+
+    autoencoder:
+      epochs: 10
+      learning_rate: 0.001
+      batch_size: 64
+      encoding_size: 3
+      hidden_layers: [256, 128, 64, 32]
+      dropout_rate: 0.2
+      optimizer: "adam"
 
     d_lstm:
       epochs: 20
@@ -61,15 +72,16 @@ models:
       batch_size: 64
       hidden_size: 64
       num_layers: 2
-      dropout_rate: 0.3
+      dropout_rate: 0.2
       optimizer: "adam"
+      bidirectional: false
 
     mlp:
       epochs: 20
       learning_rate: 0.001
       batch_size: 64
       hidden_layers: [256, 128, 64, 32]
-      dropout_rate: 0.3
+      dropout_rate: 0.2
       optimizer: "adam"
 
     rnn:
@@ -88,7 +100,7 @@ models:
         batch_size: 64
         conv_channels: [32, 64]
         kernel_size: 3
-        dropout_rate: 0.3
+        dropout_rate: 0.2
         optimizer: "adam"
       lightgbm:
         num_leaves: 31
@@ -96,21 +108,12 @@ models:
         num_boost_round: 100
         feature_fraction: 0.9
 
-    autoencoder:
-      epochs: 10
-      learning_rate: 0.001
-      batch_size: 64
-      encoding_size: 3
-      hidden_layers: [128, 64]
-      dropout_rate: 0.3
-      optimizer: "adam"
-
     dnn:
       epochs: 5
       learning_rate: 0.001
       batch_size: 64
       hidden_layers: [256, 128, 64, 32]
-      dropout_rate: 0.3
+      dropout_rate: 0.2
       optimizer: "adam"
 
     xgboost:

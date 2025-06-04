@@ -22,7 +22,7 @@ class DLSTMMLPModel(BaseModel):
     def _create_model(self, input_size: int) -> nn.Module:
         """Create the hybrid LSTM-MLP model architecture."""
         class HybridModel(nn.Module):
-            def __init__(self, input_size, lstm_hidden_size, lstm_num_layers, lstm_dropout_rate,
+            def __init__(self, input_size, lstm_hidden_size, lstm_num_layers, lstm_dropout_rate, lstm_bidirectional,
                          mlp_hidden_layers, mlp_dropout_rate):
                 super(HybridModel, self).__init__()
                 
@@ -33,11 +33,11 @@ class DLSTMMLPModel(BaseModel):
                     lstm_num_layers,
                     batch_first=True,
                     dropout=lstm_dropout_rate,
-                    bidirectional=True
+                    bidirectional=lstm_bidirectional
                 )
                 
                 # Calculate LSTM output size (doubled due to bidirectional)
-                lstm_output_size = lstm_hidden_size * 2
+                lstm_output_size = (lstm_hidden_size* 2 if lstm_bidirectional else lstm_hidden_size)
                 
                 # MLP component for final prediction
                 mlp_layers = []
@@ -46,6 +46,7 @@ class DLSTMMLPModel(BaseModel):
                 for hidden_size in mlp_hidden_layers:
                     mlp_layers.extend([
                         nn.Linear(prev_size, hidden_size),
+                        nn.BatchNorm1d(hidden_size),
                         nn.ReLU(),
                         nn.Dropout(mlp_dropout_rate)
                     ])
@@ -61,8 +62,9 @@ class DLSTMMLPModel(BaseModel):
             
             def forward(self, x):
                 # LSTM forward pass
-                h0 = torch.zeros(self.lstm.num_layers * 2, x.size(0), self.lstm.hidden_size).to(x.device)
-                c0 = torch.zeros(self.lstm.num_layers * 2, x.size(0), self.lstm.hidden_size).to(x.device)
+                num_layers =  (self.lstm.num_layers* 2 if self.lstm.bidirectional else self.lstm.num_layers)
+                h0 = torch.zeros(num_layers, x.size(0), self.lstm.hidden_size).to(x.device)
+                c0 = torch.zeros(num_layers, x.size(0), self.lstm.hidden_size).to(x.device)
                 
                 lstm_out, _ = self.lstm(x, (h0, c0))
                 lstm_features = lstm_out[:, -1, :]  # Get the last time step
@@ -75,8 +77,9 @@ class DLSTMMLPModel(BaseModel):
             lstm_hidden_size=self.hyperparams['lstm']['hidden_size'],
             lstm_num_layers=self.hyperparams['lstm']['num_layers'],
             lstm_dropout_rate=self.hyperparams['lstm']['dropout_rate'],
+            lstm_bidirectional=self.hyperparams['lstm']['bidirectional'],
             mlp_hidden_layers=self.hyperparams['mlp']['hidden_layers'],
-            mlp_dropout_rate=self.hyperparams['mlp']['dropout_rate']
+            mlp_dropout_rate=self.hyperparams['mlp']['dropout_rate'],
         )
 
     def train(self, X_train: np.ndarray, y_train: np.ndarray) -> None:

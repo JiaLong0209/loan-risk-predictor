@@ -29,6 +29,7 @@ class MLPModel(BaseModel):
                 for hidden_size in hidden_layers:
                     layers.extend([
                         nn.Linear(prev_size, hidden_size),
+                        nn.BatchNorm1d(hidden_size),
                         nn.ReLU(),
                         nn.Dropout(dropout_rate)
                     ])
@@ -90,7 +91,7 @@ class MLPModel(BaseModel):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                
+
                 epoch_loss += loss.item()
             
             # Record average loss for the epoch
@@ -101,34 +102,28 @@ class MLPModel(BaseModel):
         
         # Plot and save the training loss curve
         self.plot_train_loss()
-    
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Make predictions."""
         if self.model is None:
             raise ValueError("Model not trained yet")
-        
+
         # Convert to PyTorch tensor
         X = torch.FloatTensor(X).to(self.device)
-        
+
         # Make predictions
         self.model.eval()
         with torch.no_grad():
             predictions = self.model(X)
         
         return predictions.cpu().numpy()
-    
-    # def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Tuple[float, float, float]:
-    #     """Evaluate the model."""
-    #     predictions = self.predict(X_test)
-    #     predictions = (predictions > 0.5).astype(int)
-    #     return self._calculate_metrics(y_test, predictions)
-    
+
     def save(self, path: str) -> None:
         """Save the model to disk."""
         if self.model is None:
             raise ValueError("No model to save")
         torch.save(self.model.state_dict(), path)
-    
+
     def load(self, path: str) -> None:
         """Load the model from disk."""
         if self.model is None:

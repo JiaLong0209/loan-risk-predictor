@@ -21,7 +21,7 @@ class DLSTMModel(BaseModel):
     def _create_model(self, input_size: int) -> nn.Module:
         """Create the LSTM model architecture."""
         class LSTM(nn.Module):
-            def __init__(self, input_size, hidden_size, num_layers, dropout_rate):
+            def __init__(self, input_size, hidden_size, num_layers, dropout_rate, bidirectional):
                 super(LSTM, self).__init__()
                 self.hidden_size = hidden_size
                 self.num_layers = num_layers
@@ -32,19 +32,22 @@ class DLSTMModel(BaseModel):
                     num_layers,
                     batch_first=True,
                     dropout=dropout_rate,
-                    bidirectional=True
+                    bidirectional=bidirectional
                 )
                 
-                # Double hidden size due to bidirectional LSTM
-                self.fc1 = nn.Linear(hidden_size * 2, 64)
+                # Adjust output size based on bidirectional
+                output_size = hidden_size * 2 if bidirectional else hidden_size
+                
+                self.fc1 = nn.Linear(output_size, 64)
                 self.fc2 = nn.Linear(64, 32)
                 self.fc3 = nn.Linear(32, 1)
                 self.dropout = nn.Dropout(dropout_rate)
                 self.sigmoid = nn.Sigmoid()
             
             def forward(self, x):
-                h0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(x.device)
-                c0 = torch.zeros(self.num_layers * 2, x.size(0), self.hidden_size).to(x.device)
+                num_layers = self.num_layers * 2 if self.lstm.bidirectional else self.num_layers
+                h0 = torch.zeros(num_layers, x.size(0), self.hidden_size).to(x.device) 
+                c0 = torch.zeros(num_layers, x.size(0), self.hidden_size).to(x.device)
                 
                 out, _ = self.lstm(x, (h0, c0))
                 out = out[:, -1, :]  # Get the last time step
@@ -60,7 +63,8 @@ class DLSTMModel(BaseModel):
             input_size=input_size,
             hidden_size=self.hyperparams['hidden_size'],
             num_layers=self.hyperparams['num_layers'],
-            dropout_rate=self.hyperparams['dropout_rate']
+            dropout_rate=self.hyperparams['dropout_rate'],
+            bidirectional=self.hyperparams['bidirectional'],
         )
     
     def train(self, X_train: np.ndarray, y_train: np.ndarray) -> None:

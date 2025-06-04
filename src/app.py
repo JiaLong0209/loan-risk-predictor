@@ -46,6 +46,13 @@ class LoanRiskPredictor:
             total_start_time = time.time()
             
             # Load and preprocess data
+            self.logger.info("================ RUN INFO ================")
+            self.logger.info(f"model_name: {model_name}")
+            self.logger.info(f"subsample_rate: {subsample_rate}")
+            self.logger.info(f"n_folds: {n_folds}")
+            self.logger.info(f"use_feature_engineering: {use_feature_engineering}")
+            self.logger.info("============================================")
+
             self.logger.info("Loading and preprocessing data...")
             if debug_mode:
                 data, labels = self.data_repo.load_data()
@@ -260,10 +267,19 @@ class LoanRiskPredictor:
             # Step 2: Autoencoder feature extraction
             if self.config.get('feature_engineering.use_autoencoder', True):
                 self.logger.info("Performing autoencoder feature extraction...")
+
+                use_weighted_input = self.config.get('feature_engineering.use_weighted_input_for_autoencoder')
+                self.logger.info(f"use {'weighted_data' if use_weighted_input else 'normalized_data'} for autoencoder_input")
+
+                autoencoder_input = weighted_features if use_weighted_input else normalized_data
                 autoencoder = AutoencoderModel()
-                autoencoder.train(weighted_features)
+
+                autoencoder.train(autoencoder_input)
+                # autoencoder.train(weighted_features)
                 pbar.update(1)
-                encoded_features = autoencoder.predict(weighted_features)
+
+                encoded_features = autoencoder.predict(autoencoder_input)
+
                 pbar.update(1)
                 
                 if debug_mode:
