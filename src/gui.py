@@ -34,6 +34,7 @@ class LoanRiskPredictorGUI:
         # Initialize results storage
         self.results: Dict[str, Dict[str, List[float]]] = {}
         self.confusion_matrices: Dict[str, np.ndarray] = {}
+        self.training_losses: Dict[str, List[float]] = {}  # Store training losses for each model
         
         # Debug mode flag
         self.debug_mode = False
@@ -72,6 +73,16 @@ class LoanRiskPredictorGUI:
         )
         feature_eng_checkbox.pack(pady=5)
         
+        # K-fold toggle
+        self.use_kfold_var = ctk.BooleanVar(value=True)
+        kfold_checkbox = ctk.CTkCheckBox(
+            control_frame,
+            text="Use K-Fold Cross Validation",
+            variable=self.use_kfold_var,
+            command=self.toggle_kfold_controls
+        )
+        kfold_checkbox.pack(pady=5)
+        
         # Train split rate
         train_frame = ctk.CTkFrame(control_frame)
         train_frame.pack(pady=5, fill=ctk.X)
@@ -92,22 +103,22 @@ class LoanRiskPredictorGUI:
         self.train_split_entry.insert(0, "80")
         self.train_split_entry.bind('<Return>', self.update_train_split_from_entry)
         
-        # K-fold number
-        kfold_frame = ctk.CTkFrame(control_frame)
-        kfold_frame.pack(pady=5, fill=ctk.X)
-        ctk.CTkLabel(kfold_frame, text="K-Fold Number").pack(side=ctk.LEFT, padx=5)
-        self.k_fold = ctk.CTkSlider(kfold_frame, from_=2, to=10, number_of_steps=8)
+        # K-fold number frame
+        self.kfold_frame = ctk.CTkFrame(control_frame)
+        self.kfold_frame.pack(pady=5, fill=ctk.X)
+        ctk.CTkLabel(self.kfold_frame, text="K-Fold Number").pack(side=ctk.LEFT, padx=5)
+        self.k_fold = ctk.CTkSlider(self.kfold_frame, from_=2, to=10, number_of_steps=8)
         self.k_fold.set(5)
         self.k_fold.pack(side=ctk.LEFT, padx=5, fill=ctk.X, expand=True)
-        self.k_fold_label = ctk.CTkLabel(kfold_frame, text="5")
+        self.k_fold_label = ctk.CTkLabel(self.kfold_frame, text="5")
         self.k_fold_label.pack(side=ctk.LEFT, padx=5)
         self.k_fold.configure(command=self.update_kfold_label)
         
-        # K-fold entry
-        kfold_entry_frame = ctk.CTkFrame(control_frame)
-        kfold_entry_frame.pack(pady=5, fill=ctk.X)
-        ctk.CTkLabel(kfold_entry_frame, text="Enter K-Fold:").pack(side=ctk.LEFT, padx=5)
-        self.k_fold_entry = ctk.CTkEntry(kfold_entry_frame, width=60)
+        # K-fold entry frame
+        self.kfold_entry_frame = ctk.CTkFrame(control_frame)
+        self.kfold_entry_frame.pack(pady=5, fill=ctk.X)
+        ctk.CTkLabel(self.kfold_entry_frame, text="Enter K-Fold:").pack(side=ctk.LEFT, padx=5)
+        self.k_fold_entry = ctk.CTkEntry(self.kfold_entry_frame, width=60)
         self.k_fold_entry.pack(side=ctk.LEFT, padx=5)
         self.k_fold_entry.insert(0, "5")
         self.k_fold_entry.bind('<Return>', self.update_kfold_from_entry)
@@ -257,9 +268,11 @@ class LoanRiskPredictorGUI:
         # Create tabs
         self.tabview.add("Performance Metrics")
         self.tabview.add("Model Comparison")
+        self.tabview.add("Training Losses")  # Add new tab for training losses
 
         figsize1 = (15, 20)
         figsize2 = (10, 10)
+        figsize3 = (12, 8)  # Size for training loss plot
         
         # Create figures for each tab
         self.fig1 = plt.figure(figsize=figsize1)
@@ -274,17 +287,24 @@ class LoanRiskPredictorGUI:
         self.canvas2 = FigureCanvasTkAgg(self.fig2, master=self.tabview.tab("Model Comparison"))
         self.canvas2.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
 
+        # Create figure for training losses
+        self.fig3 = plt.figure(figsize=figsize3)
+        self.ax4 = self.fig3.add_subplot(111)  # Training loss plot
+        self.canvas3 = FigureCanvasTkAgg(self.fig3, master=self.tabview.tab("Training Losses"))
+        self.canvas3.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
+
         # Adjust layout to accommodate the legend
-        self.fig1.subplots_adjust(left = 0.1, right=0.8, hspace=0.2, wspace=0.2, top=0.95, bottom=0.05)
+        self.fig1.subplots_adjust(left=0.1, right=0.8, hspace=0.2, wspace=0.2, top=0.95, bottom=0.05)
         self.fig2.subplots_adjust(right=0.9)
-        
-    
+        self.fig3.subplots_adjust(right=0.95)  # Adjust for legend
+
     def update_charts(self):
         """Update the charts with the latest results."""
         # Clear previous charts
         self.ax1.clear()
         self.ax2.clear()
         self.ax3.clear()
+        self.ax4.clear()  # Clear training loss plot
         
         # Prepare data for charts
         models = list(self.results.keys())
@@ -411,8 +431,68 @@ class LoanRiskPredictorGUI:
 
         # change the line width for the legend
         for line in leg.get_lines():
-            line.set_linewidth(4.0)
+            line.set_linewidth(fontsize)
         
+        # Update training loss plot
+        if self.training_losses:  # Use the stored training losses
+            # Filter out models with no losses
+            valid_losses = {}
+            for model_name, losses in self.training_losses.items():
+                if model_name == "d_lstm_mlp" and isinstance(losses, dict):
+                    # Handle D_LSTM_MLP special case
+                    if losses.get('lstm') and isinstance(losses['lstm'], list) and len(losses['lstm']) > 0:
+                        valid_losses[f"{model_name}-lstm"] = losses['lstm']
+                    if losses.get('mlp') and isinstance(losses['mlp'], list) and len(losses['mlp']) > 0:
+                        valid_losses[f"{model_name}-mlp"] = losses['mlp']
+                elif isinstance(losses, list) and len(losses) > 0:
+                    valid_losses[model_name] = losses
+            
+            if valid_losses:  # Only plot if we have valid losses
+                # Use a colormap for different models
+                colors = plt.cm.Set3(np.linspace(0, 1, len(valid_losses)))
+                
+                # Plot each model's loss curve
+                for (model_name, losses), color in zip(valid_losses.items(), colors):
+                    try:
+                        self.ax4.plot(losses, label=model_name, color=color, linewidth=2)
+                        
+                        # Add final loss value annotation
+                        final_loss = losses[-1]
+                        self.ax4.annotate(f'{final_loss:.4f}',
+                                        xy=(len(losses)-1, final_loss),
+                                        xytext=(len(losses)-1, final_loss*1.1),
+                                        arrowprops=dict(facecolor='#333333', shrink=0.05, width=1, headwidth=fontsize, headlength=fontsize),
+                                        fontsize=8, rotation=30)
+                    except Exception as e:
+                        print(f"Error plotting losses for {model_name}: {str(e)}")
+                        continue
+
+                self.ax4.set_title('Training Loss Curves for All Models', fontsize=fontsize*1.5)
+                self.ax4.set_facecolor(facecolors[0])
+                self.ax4.set_xlabel('Epoch', fontsize=fontsize*1.3)
+                self.ax4.set_ylabel('Loss', fontsize=fontsize*1.3)
+                self.ax4.grid(True, linestyle='--', alpha=0.7)
+
+                # Only add legend if we have valid plots
+                if self.ax4.get_lines():
+                    self.ax4.legend(bbox_to_anchor=(0.7, 1), loc='upper left', fontsize=fontsize)
+                    leg = self.ax4.legend()
+                    # change the line width for the legend
+                    for line in leg.get_lines():
+                        line.set_linewidth(fontsize)
+                # Adjust layout to prevent label cutoff
+                self.fig3.tight_layout()
+            else:
+                # Display message if no valid losses
+                self.ax4.text(0.5, 0.5, 'No training losses recorded for any model',
+                            horizontalalignment='center',
+                            verticalalignment='center',
+                            transform=self.ax4.transAxes,
+                            fontsize=12)
+                self.ax4.set_title('Training Loss Curves', fontsize=14)
+                self.ax4.set_xticks([])
+                self.ax4.set_yticks([])
+
         # Update the results text display
         def update_results_text():
             self.results_text.delete("1.0", ctk.END)
@@ -433,15 +513,22 @@ class LoanRiskPredictorGUI:
 
         update_results_text()
 
-        # Draw both canvases
+        # Draw all canvases
         self.canvas1.draw()
         self.canvas2.draw()
+        self.canvas3.draw()
+
         # Save charts
         graph_dir = self.config.get("data.graph_dir")
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
         self.fig1.savefig(os.path.join(graph_dir, "performance_metrics.png"))
         self.fig2.savefig(os.path.join(graph_dir, "model_comparison.png"))
+        if valid_losses:  # Only save if we have valid losses
+            self.fig3.savefig(os.path.join(graph_dir, "all_models_training_loss.png"))
+            
+            # Remove custom plotting code for D_LSTM_MLP components since we're using base_model's plot_train_loss
+            # The individual component plots are now saved in app.py using the base_model's plot_train_loss method
 
         cm_dir = self.config.get("data.cm_dir")
         if not os.path.exists(cm_dir):
@@ -482,22 +569,35 @@ class LoanRiskPredictorGUI:
             fig.savefig(os.path.join(cm_dir, f"confusion_matrix_{model_name}.png"))
             plt.close(fig)
 
+    def toggle_kfold_controls(self):
+        """Toggle visibility of K-fold controls based on checkbox state."""
+        if self.use_kfold_var.get():
+            self.kfold_frame.pack(pady=5, fill=ctk.X)
+            self.kfold_entry_frame.pack(pady=5, fill=ctk.X)
+        else:
+            self.kfold_frame.pack_forget()
+            self.kfold_entry_frame.pack_forget()
+
     def run_models(self):
-        """Run the selected models and update the display.""" # Update configuration
+        """Run the selected models and update the display."""
+        # Update configuration
         self.config.set('models.train_percentage', int(self.train_split.get()))
-        n_folds = int(self.k_fold.get())
+        n_folds = int(self.k_fold.get()) if self.use_kfold_var.get() else 1
         subsample_rate = round(self.subsample_rate.get() / 100.0, 3)
 
         # Clear previous results
         self.results_text.delete("1.0", ctk.END)
         self.results.clear()
         self.confusion_matrices.clear()
+        self.training_losses.clear()  # Clear previous training losses
 
         # Run selected models
         for model_name, var in self.model_vars.items():
             if var.get():
                 try:
                     self.results_text.insert(ctk.END, f"\nRunning {model_name}...\n")
+                    if not self.use_kfold_var.get():
+                        self.results_text.insert(ctk.END, "Using single train/test split...\n")
                     self.root.update()
                     
                     metrics = self.predictor.run(
@@ -513,6 +613,10 @@ class LoanRiskPredictorGUI:
                     # Store confusion matrix if available
                     if 'confusion_matrix' in metrics:
                         self.confusion_matrices[model_name] = metrics['confusion_matrix']
+
+                    # Store training losses if available
+                    if 'training_losses' in metrics and metrics['training_losses']:
+                        self.training_losses[model_name] = metrics['training_losses']
 
                     # Display average results
                     avg_metrics = {
@@ -530,7 +634,7 @@ class LoanRiskPredictorGUI:
                 except Exception as e:
                     self.results_text.insert(ctk.END, f"Error: {str(e)}\n")
 
-        # Update charts
+        # Update charts including training losses
         self.update_charts()
     
     def run(self):
@@ -538,139 +642,139 @@ class LoanRiskPredictorGUI:
         print(f"Device: {torch.device('cuda' if torch.cuda.is_available() else 'cpu')}")
         self.root.mainloop() 
 
-    def evaluate_test_data(self):
-        """Evaluate models on test data and save metrics and charts."""
-        try:
-            # Clear previous results
-            self.results_text.delete("1.0", ctk.END)
-            self.results.clear()
-            self.confusion_matrices.clear()
+    # def evaluate_test_data(self):
+    #     """Evaluate models on test data and save metrics and charts."""
+    #     try:
+    #         # Clear previous results
+    #         self.results_text.delete("1.0", ctk.END)
+    #         self.results.clear()
+    #         self.confusion_matrices.clear()
             
-            # Load test data
-            test_path = self.config.get("data.test_path")
-            self.results_text.insert(ctk.END, f"\nLoading test data from {test_path}...\n")
-            self.root.update()
+    #         # Load test data
+    #         test_path = self.config.get("data.test_path")
+    #         self.results_text.insert(ctk.END, f"\nLoading test data from {test_path}...\n")
+    #         self.root.update()
             
-            # Get test data
-            test_data, test_labels = self.predictor.data_repo.load_test_data()
+    #         # Get test data
+    #         test_data, test_labels = self.predictor.data_repo.load_test_data()
             
-            # Run evaluation for each selected model
-            for model_name, var in self.model_vars.items():
-                if var.get():
-                    try:
-                        self.results_text.insert(ctk.END, f"\nEvaluating {model_name} on test data...\n")
-                        self.root.update()
+    #         # Run evaluation for each selected model
+    #         for model_name, var in self.model_vars.items():
+    #             if var.get():
+    #                 try:
+    #                     self.results_text.insert(ctk.END, f"\nEvaluating {model_name} on test data...\n")
+    #                     self.root.update()
                         
-                        # Create and train model
-                        model = self.predictor.create_model(model_name)
-                        model.train(self.predictor.data_repo.X_train, self.predictor.data_repo.y_train)
+    #                     # Create and train model
+    #                     model = self.predictor.create_model(model_name)
+    #                     model.train(self.predictor.data_repo.X_train, self.predictor.data_repo.y_train)
                         
-                        # Evaluate on test data
-                        accuracy, recall, precision = model.evaluate(test_data, test_labels)
+    #                     # Evaluate on test data
+    #                     accuracy, recall, precision = model.evaluate(test_data, test_labels)
                         
-                        # Get predictions for confusion matrix
-                        predictions = model.predict(test_data)
-                        predictions = (predictions > model.find_best_threshold(test_labels, predictions)).astype(int)
-                        cm = confusion_matrix(test_labels, predictions)
+    #                     # Get predictions for confusion matrix
+    #                     predictions = model.predict(test_data)
+    #                     predictions = (predictions > model.find_best_threshold(test_labels, predictions)).astype(int)
+    #                     cm = confusion_matrix(test_labels, predictions)
                         
-                        # Store results
-                        self.results[model_name] = {
-                            'accuracy': [accuracy],
-                            'recall': [recall],
-                            'precision': [precision],
-                            'f1_score': [2 * (recall * precision) / (recall + precision)],
-                            'confusion_matrix': cm
-                        }
-                        self.confusion_matrices[model_name] = cm
+    #                     # Store results
+    #                     self.results[model_name] = {
+    #                         'accuracy': [accuracy],
+    #                         'recall': [recall],
+    #                         'precision': [precision],
+    #                         'f1_score': [2 * (recall * precision) / (recall + precision)],
+    #                         'confusion_matrix': cm
+    #                     }
+    #                     self.confusion_matrices[model_name] = cm
                         
-                        # Display results
-                        self.results_text.insert(ctk.END, f"Test Accuracy: {accuracy:.4f}\n")
-                        self.results_text.insert(ctk.END, f"Test Recall: {recall:.4f}\n")
-                        self.results_text.insert(ctk.END, f"Test Precision: {precision:.4f}\n")
-                        self.results_text.insert(ctk.END, f"Test F1-Score: {self.results[model_name]['f1_score'][0]:.4f}\n")
-                        self.results_text.insert(ctk.END, f"Confusion Matrix:\n{cm}\n")
-                        self.results_text.insert(ctk.END, "-" * 50 + "\n")
+    #                     # Display results
+    #                     self.results_text.insert(ctk.END, f"Test Accuracy: {accuracy:.4f}\n")
+    #                     self.results_text.insert(ctk.END, f"Test Recall: {recall:.4f}\n")
+    #                     self.results_text.insert(ctk.END, f"Test Precision: {precision:.4f}\n")
+    #                     self.results_text.insert(ctk.END, f"Test F1-Score: {self.results[model_name]['f1_score'][0]:.4f}\n")
+    #                     self.results_text.insert(ctk.END, f"Confusion Matrix:\n{cm}\n")
+    #                     self.results_text.insert(ctk.END, "-" * 50 + "\n")
                         
-                        # Save model's training loss curve
-                        model.plot_train_loss()
+    #                     # Save model's training loss curve
+    #                     model.plot_train_loss()
                         
-                    except Exception as e:
-                        self.results_text.insert(ctk.END, f"Error evaluating {model_name}: {str(e)}\n")
+    #                 except Exception as e:
+    #                     self.results_text.insert(ctk.END, f"Error evaluating {model_name}: {str(e)}\n")
             
-            # Update and save charts
-            self.update_charts()
+    #         # Update and save charts
+    #         self.update_charts()
             
-            # Save test results to file
-            results_dir = os.path.join(self.config.get("data.graph_dir"), "test_results")
-            if not os.path.exists(results_dir):
-                os.makedirs(results_dir)
+    #         # Save test results to file
+    #         results_dir = os.path.join(self.config.get("data.graph_dir"), "test_results")
+    #         if not os.path.exists(results_dir):
+    #             os.makedirs(results_dir)
             
-            # Save metrics to CSV
-            metrics_df = pd.DataFrame({
-                'Model': [],
-                'Accuracy': [],
-                'Recall': [],
-                'Precision': [],
-                'F1-Score': []
-            })
+    #         # Save metrics to CSV
+    #         metrics_df = pd.DataFrame({
+    #             'Model': [],
+    #             'Accuracy': [],
+    #             'Recall': [],
+    #             'Precision': [],
+    #             'F1-Score': []
+    #         })
             
-            for model_name, metrics in self.results.items():
-                metrics_df = pd.concat([metrics_df, pd.DataFrame({
-                    'Model': [model_name],
-                    'Accuracy': [metrics['accuracy'][0]],
-                    'Recall': [metrics['recall'][0]],
-                    'Precision': [metrics['precision'][0]],
-                    'F1-Score': [metrics['f1_score'][0]]
-                })], ignore_index=True)
+    #         for model_name, metrics in self.results.items():
+    #             metrics_df = pd.concat([metrics_df, pd.DataFrame({
+    #                 'Model': [model_name],
+    #                 'Accuracy': [metrics['accuracy'][0]],
+    #                 'Recall': [metrics['recall'][0]],
+    #                 'Precision': [metrics['precision'][0]],
+    #                 'F1-Score': [metrics['f1_score'][0]]
+    #             })], ignore_index=True)
             
-            metrics_df.to_csv(os.path.join(results_dir, "test_metrics.csv"), index=False)
+    #         metrics_df.to_csv(os.path.join(results_dir, "test_metrics.csv"), index=False)
             
-            # Save charts with test-specific names
-            self.fig1.savefig(os.path.join(results_dir, "test_performance_metrics.png"))
-            self.fig2.savefig(os.path.join(results_dir, "test_model_comparison.png"))
+    #         # Save charts with test-specific names
+    #         self.fig1.savefig(os.path.join(results_dir, "test_performance_metrics.png"))
+    #         self.fig2.savefig(os.path.join(results_dir, "test_model_comparison.png"))
             
-            # Save individual confusion matrices
-            cm_dir = os.path.join(results_dir, "confusion_matrices")
-            if not os.path.exists(cm_dir):
-                os.makedirs(cm_dir)
+    #         # Save individual confusion matrices
+    #         cm_dir = os.path.join(results_dir, "confusion_matrices")
+    #         if not os.path.exists(cm_dir):
+    #             os.makedirs(cm_dir)
             
-            for model_name, cm in self.confusion_matrices.items():
-                fig, ax = plt.subplots(figsize=(6, 6))
+    #         for model_name, cm in self.confusion_matrices.items():
+    #             fig, ax = plt.subplots(figsize=(6, 6))
                 
-                # Calculate percentages
-                cm_percentages = cm / np.sum(cm) * 100
+    #             # Calculate percentages
+    #             cm_percentages = cm / np.sum(cm) * 100
                 
-                # Create custom annotations combining count and percentage
-                annot = np.empty_like(cm, dtype=object)
-                for i in range(len(cm)):
-                    for j in range(len(cm)):
-                        annot[i, j] = f"{cm[i, j]}\n({cm_percentages[i, j]:.1f}%)"
+    #             # Create custom annotations combining count and percentage
+    #             annot = np.empty_like(cm, dtype=object)
+    #             for i in range(len(cm)):
+    #                 for j in range(len(cm)):
+    #                     annot[i, j] = f"{cm[i, j]}\n({cm_percentages[i, j]:.1f}%)"
                 
-                # Create heatmap without default annotations
-                sns.heatmap(cm, annot=False, fmt="d", cmap="Blues", ax=ax, cbar=False)
+    #             # Create heatmap without default annotations
+    #             sns.heatmap(cm, annot=False, fmt="d", cmap="Blues", ax=ax, cbar=False)
                 
-                # Add custom annotations with dynamic text color
-                for i in range(len(cm)):
-                    for j in range(len(cm)):
-                        # Calculate background color intensity
-                        color_intensity = cm[i, j] / cm.max()
-                        # Use white text for dark backgrounds, black for light backgrounds
-                        text_color = 'white' if color_intensity > 0.5 else 'black'
+    #             # Add custom annotations with dynamic text color
+    #             for i in range(len(cm)):
+    #                 for j in range(len(cm)):
+    #                     # Calculate background color intensity
+    #                     color_intensity = cm[i, j] / cm.max()
+    #                     # Use white text for dark backgrounds, black for light backgrounds
+    #                     text_color = 'white' if color_intensity > 0.5 else 'black'
                         
-                        ax.text(j + 0.5, i + 0.5, annot[i, j],
-                               ha='center', va='center',
-                               color=text_color,
-                               fontsize=9,
-                               fontweight='bold')
+    #                     ax.text(j + 0.5, i + 0.5, annot[i, j],
+    #                            ha='center', va='center',
+    #                            color=text_color,
+    #                            fontsize=9,
+    #                            fontweight='bold')
                 
-                ax.set_title(f"Test Confusion Matrix ({model_name})")
-                ax.set_xlabel("Predicted")
-                ax.set_ylabel("Actual")
-                fig.tight_layout()
-                fig.savefig(os.path.join(cm_dir, f"test_confusion_matrix_{model_name}.png"))
-                plt.close(fig)
+    #             ax.set_title(f"Test Confusion Matrix ({model_name})")
+    #             ax.set_xlabel("Predicted")
+    #             ax.set_ylabel("Actual")
+    #             fig.tight_layout()
+    #             fig.savefig(os.path.join(cm_dir, f"test_confusion_matrix_{model_name}.png"))
+    #             plt.close(fig)
             
-            self.results_text.insert(ctk.END, f"\nTest evaluation results saved to {results_dir}\n")
+    #         self.results_text.insert(ctk.END, f"\nTest evaluation results saved to {results_dir}\n")
             
-        except Exception as e:
-            self.results_text.insert(ctk.END, f"Error in test evaluation: {str(e)}\n") 
+    #     except Exception as e:
+    #         self.results_text.insert(ctk.END, f"Error in test evaluation: {str(e)}\n") 

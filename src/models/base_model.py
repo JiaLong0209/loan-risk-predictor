@@ -71,8 +71,9 @@ class BaseModel(ABC):
         plt.xlabel('Epoch', fontsize=10)
 
         epochs = len(self.train_losses)
-        # plt.xticks(np.linspace(0, epochs - 1, num=5).tolist() + [epochs - 1])
-        plt.xticks(ticks=range(epochs), labels=[str(i + 1) for i in range(epochs)])
+        # plt.xticks(np.linspace(0, epochs - 1, num=10).tolist() + [epochs - 1], )
+        # plt.xticks(ticks=range(0, epochs, 2), labels=[str(i + 1) for i in range(0, epochs, 2)])
+        plt.xticks([])
         plt.xlim(0, epochs-1)
 
         plt.ylabel('Loss', fontsize=10)
@@ -84,8 +85,8 @@ class BaseModel(ABC):
         plt.annotate(f'Final Loss: {final_loss:.4f}',
                     xy=(len(self.train_losses)-1, final_loss),
                     xytext=(len(self.train_losses)-1, final_loss*1.1),
-                    arrowprops=dict(facecolor='#333333', shrink=0.05, width=1),
-                    fontsize=10)
+                    arrowprops=dict(facecolor='#333333', shrink=0.05, width=1, headwidth=8, headlength=8),
+                    fontsize=8)
 
         # Save the plot if path is provided or use default
         if save_path is None:

@@ -12,6 +12,7 @@ import pandas as pd
 import os
 import time  # Add time module
 import json  # Add this import at the top with other imports
+import matplotlib.pyplot as plt
 
 class LoanRiskPredictor:
     """Main application class for loan risk prediction."""
@@ -31,8 +32,10 @@ class LoanRiskPredictor:
             'fold_times': [],
             'total_time': 0.0
         }
+        # Initialize training losses storage
+        self.model_losses = {}
 
-    def _train_d_lstm_mlp(self, X_train: np.ndarray, X_val: np.ndarray, y_train: np.ndarray, y_val: np.ndarray) -> Tuple[float, float, float, float, np.ndarray]:
+    def _train_d_lstm_mlp(self, X_train: np.ndarray, X_val: np.ndarray, y_train: np.ndarray, y_val: np.ndarray) -> Tuple[float, float, float, float, np.ndarray, Dict[str, List[float]]]:
         """Special training method for d_lstm_mlp model that combines D-LSTM and MLP.
         
         Args:
@@ -42,12 +45,19 @@ class LoanRiskPredictor:
             y_val: Validation labels
             
         Returns:
-            Tuple of (accuracy, recall, precision, f1_score, confusion_matrix)
+            Tuple of (accuracy, recall, precision, f1_score, confusion_matrix, training_losses)
         """
         # Step 1: Train D-LSTM model
         self.logger.info("Training D-LSTM model...")
         d_lstm_model = ModelFactory.create_model("d_lstm")
         d_lstm_model.train(X_train, y_train)
+        
+        # Store LSTM training losses and plot them
+        lstm_losses = d_lstm_model.train_losses.copy()
+        graph_dir = self.config.get("data.train_loss_dir")
+        if not os.path.exists(graph_dir):
+            os.makedirs(graph_dir)
+        d_lstm_model.plot_train_loss(os.path.join(graph_dir, "d_lstm_mlp-lstm.train_loss.png"))
         
         # Step 2: Get D-LSTM predictions and append to features
         self.logger.info("Getting D-LSTM predictions...")
@@ -68,12 +78,64 @@ class LoanRiskPredictor:
         mlp_model = ModelFactory.create_model("mlp")
         mlp_model.train(X_train_combined, y_train)
         
+        # Store MLP training losses and plot them
+        mlp_losses = mlp_model.train_losses.copy()
+        mlp_model.plot_train_loss(os.path.join(graph_dir, "d_lstm_mlp-mlp.train_loss.png"))
+        
         # Step 4: Evaluate the final model
-        return mlp_model.evaluate(X_val_combined, y_val)
+        acc, rec, prec, f1, cm = mlp_model.evaluate(X_val_combined, y_val)
+        
+        # Create a dictionary of training losses for both components
+        training_losses = {
+            'lstm': lstm_losses,
+            'mlp': mlp_losses
+        }
+        
+        return acc, rec, prec, f1, cm, training_losses
+
+    def plot_all_training_losses(self) -> None:
+        """Plot training losses for all models in a single figure."""
+        if not self.model_losses:
+            self.logger.warning("No training losses recorded for any model")
+            return
+
+        plt.figure(figsize=(12, 8))
+        
+        # Use a colormap for different models
+        colors = plt.cm.Set3(np.linspace(0, 1, len(self.model_losses)))
+        
+        # Plot each model's loss curve
+        for (model_name, losses), color in zip(self.model_losses.items(), colors):
+            plt.plot(losses, label=model_name.upper(), color=color, linewidth=2)
+            
+            # Add final loss value annotation
+            final_loss = losses[-1]
+            plt.annotate(f'{final_loss:.4f}',
+                        xy=(len(losses)-1, final_loss),
+                        xytext=(len(losses)-1, final_loss*1.1),
+                        arrowprops=dict(facecolor='#333333', shrink=0.05, width=1),
+                        fontsize=8)
+
+        plt.title('Training Loss Curves for All Models', fontsize=14)
+        plt.xlabel('Epoch', fontsize=12)
+        plt.ylabel('Loss', fontsize=12)
+        plt.grid(True, linestyle='--', alpha=0.7)
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10)
+        
+        # Adjust layout to prevent label cutoff
+        plt.tight_layout()
+        
+        # Save the plot
+        graph_dir = self.config.get("data.graph_dir")
+        if not os.path.exists(graph_dir):
+            os.makedirs(graph_dir)
+        plt.savefig(os.path.join(graph_dir, "all_models_training_loss.png"), 
+                   dpi=300, bbox_inches='tight')
+        plt.close()
 
     def run(self, model_name: str = None, subsample_rate: float = 1.0, n_folds: int = 5,
             debug_mode: bool = False, use_feature_engineering: bool = True) -> Dict[str, List[float]]:
-        """Run the loan risk prediction pipeline with K-fold cross-validation."""
+        """Run the loan risk prediction pipeline with K-fold cross-validation or single train/test split."""
         try:
             # Reset timing metrics
             self.timing_metrics = {
@@ -101,8 +163,6 @@ class LoanRiskPredictor:
                 data, labels = self.data_repo.load_data()
 
             processed_dir = self.config.get('data.processed_dir')
-
-            # self.logger.info(f"{processed_dir, self.config.get('data.normalized_data_path')}")
 
             if not os.path.exists(processed_dir):
                 os.makedirs(processed_dir)
@@ -162,9 +222,7 @@ class LoanRiskPredictor:
                         self.logger.info(f"Existed Fused Features Shape: {fused_features.shape}")
                         
                         self.logger.info(f"Expected Fused Features Shape: {expected_fused_feature_shape}")
-                        # self.logger.info(f"Normalied Data Shape{normalized_data.shape}")
-                        if (fused_features.shape == expected_fused_feature_shape).all() :
-                        # if fused_features.shape[0] == normalized_data.shape[0] :
+                        if (fused_features.shape == expected_fused_feature_shape).all():
                             self.logger.info(f"Using cached fused features: {fused_features_path}")
                             encoded_features = fused_features
                         else:
@@ -193,69 +251,233 @@ class LoanRiskPredictor:
                 'recall': [],
                 'precision': [],
                 'f1_score': [],
-                'confusion_matrices': []
+                'confusion_matrices': [],
+                'training_losses': []  # Add training losses to metrics
             }
             
             # Get model name from config if not provided
             if model_name is None:
                 model_name = self.config.get('models.default_model')
             
-            # Perform K-fold cross-validation
-            self.logger.info(f"Performing {n_folds}-fold cross-validation...")
-            for fold, (X_train, X_val, y_train, y_val) in enumerate(tqdm(self.data_repo.get_kfold_splits(encoded_features, labels, n_folds), 
-                                                                        total=n_folds, desc="K-fold Cross Validation")):
-                # Start timing for this fold
-                fold_start_time = time.time()
+            # Handle single train/test split
+            if n_folds == 1:
+                self.logger.info("Using single train/test split...")
+                train_percentage = self.config.get('models.train_percentage', 80) / 100.0
                 
-                self.logger.info(f"Training fold {fold + 1}/{n_folds}...")
+                # Split data into train and test sets
+                n_samples = len(encoded_features)
+                n_train = int(n_samples * train_percentage)
+                indices = np.random.permutation(n_samples)
+                train_indices = indices[:n_train]
+                test_indices = indices[n_train:]
+                
+                X_train = encoded_features[train_indices]
+                y_train = labels[train_indices]
+                X_test = encoded_features[test_indices]
+                y_test = labels[test_indices]
                 
                 if debug_mode:
-                    self.debug_logger.log_array_info(X_train, f"Fold {fold + 1} Training Data")
-                    self.debug_logger.log_array_info(y_train, f"Fold {fold + 1} Training Labels")
-                    self.debug_logger.log_array_info(X_val, f"Fold {fold + 1} Validation Data")
-                    self.debug_logger.log_array_info(y_val, f"Fold {fold + 1} Validation Labels")
+                    self.debug_logger.log_array_info(X_train, "Training Data")
+                    self.debug_logger.log_array_info(y_train, "Training Labels")
+                    self.debug_logger.log_array_info(X_test, "Test Data")
+                    self.debug_logger.log_array_info(y_test, "Test Labels")
+                
+                # Start timing for training
+                fold_start_time = time.time()
+                
+                self.logger.info("Training model...")
                 
                 # Special handling for d_lstm_mlp model
                 if model_name == "d_lstm_mlp":
-                    acc, rec, prec, f1, cm = self._train_d_lstm_mlp(X_train, X_val, y_train, y_val)
+                    acc, rec, prec, f1, cm, training_losses = self._train_d_lstm_mlp(X_train, X_test, y_train, y_test)
+                    metrics['training_losses'] = training_losses
+                    
+                    # Store metrics
+                    metrics['accuracy'].append(acc)
+                    metrics['recall'].append(rec)
+                    metrics['precision'].append(prec)
+                    metrics['f1_score'].append(f1)
+                    metrics['confusion_matrices'].append(cm)
+                    
+                    # Calculate training time for single train/test split
+                    fold_time = time.time() - fold_start_time
+                    self.timing_metrics['fold_times'].append(fold_time)
+                    
+                    # Log training time
+                    self.logger.info(f"Training time: {fold_time:.2f} seconds")
+                    
+                    if debug_mode:
+                        self.debug_logger.log_metrics({
+                            'accuracy': acc,
+                            'recall': rec,
+                            'precision': prec,
+                            'f1_score': f1
+                        }, "Test Results")
+                        self.debug_logger.log_array_info(cm, "Test Confusion Matrix")
+                    
+                    self.logger.info("Test results:")
+                    self.logger.info(f"Accuracy: {acc:.4f}")
+                    self.logger.info(f"Recall: {rec:.4f}")
+                    self.logger.info(f"Precision: {prec:.4f}")
+                    self.logger.info(f"F1-Score: {f1:.4f}")
+                    self.logger.log_confusion_matrix(cm, "Confusion Matrix: ")
                 else:
-                    # Create and train model (original code)
+                    # Create and train model
                     model = ModelFactory.create_model(model_name)
                     with tqdm(total=1, desc=f"Training {model_name}") as pbar:
                         model.train(X_train, y_train)
                         pbar.update(1)
                     
+                    # Store model's training losses
+                    metrics['training_losses'] = model.train_losses
+                    
+                    # Calculate training time
+                    fold_time = time.time() - fold_start_time
+                    self.timing_metrics['fold_times'].append(fold_time)
+                    
+                    # Log training time
+                    self.logger.info(f"Training time: {fold_time:.2f} seconds")
+                    
                     # Evaluate model
-                    acc, rec, prec, f1, cm = model.evaluate(X_val, y_val)
+                    acc, rec, prec, f1, cm = model.evaluate(X_test, y_test)
+                    
+                    metrics['accuracy'].append(acc)
+                    metrics['recall'].append(rec)
+                    metrics['precision'].append(prec)
+                    metrics['f1_score'].append(f1)
+                    metrics['confusion_matrices'].append(cm)
+                    
+                    if debug_mode:
+                        self.debug_logger.log_metrics({
+                            'accuracy': acc,
+                            'recall': rec,
+                            'precision': prec,
+                            'f1_score': f1
+                        }, "Test Results")
+                        self.debug_logger.log_array_info(cm, "Test Confusion Matrix")
+                    
+                    self.logger.info("Test results:")
+                    self.logger.info(f"Accuracy: {acc:.4f}")
+                    self.logger.info(f"Recall: {rec:.4f}")
+                    self.logger.info(f"Precision: {prec:.4f}")
+                    self.logger.info(f"F1-Score: {f1:.4f}")
+                    self.logger.log_confusion_matrix(cm, "Confusion Matrix: ")
+            
+            else:
+                # Perform K-fold cross-validation
+                self.logger.info(f"Performing {n_folds}-fold cross-validation...")
+                fold_losses = []  # Store losses for each fold
                 
-                # Calculate fold training time
-                fold_time = time.time() - fold_start_time
-                self.timing_metrics['fold_times'].append(fold_time)
+                for fold, (X_train, X_val, y_train, y_val) in enumerate(tqdm(self.data_repo.get_kfold_splits(encoded_features, labels, n_folds), 
+                                                                            total=n_folds, desc="K-fold Cross Validation")):
+                    # Start timing for this fold
+                    fold_start_time = time.time()
+                    
+                    self.logger.info(f"Training fold {fold + 1}/{n_folds}...")
+                    
+                    if debug_mode:
+                        self.debug_logger.log_array_info(X_train, f"Fold {fold + 1} Training Data")
+                        self.debug_logger.log_array_info(y_train, f"Fold {fold + 1} Training Labels")
+                        self.debug_logger.log_array_info(X_val, f"Fold {fold + 1} Validation Data")
+                        self.debug_logger.log_array_info(y_val, f"Fold {fold + 1} Validation Labels")
+                    
+                    # Special handling for d_lstm_mlp model
+                    if model_name == "d_lstm_mlp":
+                        acc, rec, prec, f1, cm, training_losses = self._train_d_lstm_mlp(X_train, X_val, y_train, y_val)
+                        fold_losses.append(training_losses)
+                        
+                        # Store metrics
+                        metrics['accuracy'].append(acc)
+                        metrics['recall'].append(rec)
+                        metrics['precision'].append(prec)
+                        metrics['f1_score'].append(f1)
+                        metrics['confusion_matrices'].append(cm)
+                        
+                        # Calculate fold training time
+                        fold_time = time.time() - fold_start_time
+                        self.timing_metrics['fold_times'].append(fold_time)
+                        
+                        # Log fold timing
+                        self.logger.info(f"Fold {fold + 1} training time: {fold_time:.2f} seconds")
+                        
+                        if debug_mode:
+                            self.debug_logger.log_metrics({
+                                'accuracy': acc,
+                                'recall': rec,
+                                'precision': prec,
+                                'f1_score': f1
+                            }, f"Fold {fold + 1} Results")
+                            self.debug_logger.log_array_info(cm, f"Fold {fold + 1} Confusion Matrix")
+                        
+                        self.logger.info(f"Fold {fold + 1} results:")
+                        self.logger.info(f"Accuracy: {acc:.4f}")
+                        self.logger.info(f"Recall: {rec:.4f}")
+                        self.logger.info(f"Precision: {prec:.4f}")
+                        self.logger.info(f"F1-Score: {f1:.4f}")
+                        self.logger.log_confusion_matrix(cm, "Confusion Matrix: ")
+                    else:
+                        # Create and train model
+                        model = ModelFactory.create_model(model_name)
+                        with tqdm(total=1, desc=f"Training {model_name}") as pbar:
+                            model.train(X_train, y_train)
+                            pbar.update(1)
+                        
+                        # Store fold's training losses
+                        fold_losses.append(model.train_losses)
+                        
+                        # Calculate fold training time
+                        fold_time = time.time() - fold_start_time
+                        self.timing_metrics['fold_times'].append(fold_time)
+                        
+                        # Log fold timing
+                        self.logger.info(f"Fold {fold + 1} training time: {fold_time:.2f} seconds")
+                        
+                        # Evaluate model
+                        acc, rec, prec, f1, cm = model.evaluate(X_val, y_val)
+                        
+                        metrics['accuracy'].append(acc)
+                        metrics['recall'].append(rec)
+                        metrics['precision'].append(prec)
+                        metrics['f1_score'].append(f1)
+                        metrics['confusion_matrices'].append(cm)
+                        
+                        if debug_mode:
+                            self.debug_logger.log_metrics({
+                                'accuracy': acc,
+                                'recall': rec,
+                                'precision': prec,
+                                'f1_score': f1
+                            }, f"Fold {fold + 1} Results")
+                            self.debug_logger.log_array_info(cm, f"Fold {fold + 1} Confusion Matrix")
+                        
+                        self.logger.info(f"Fold {fold + 1} results:")
+                        self.logger.info(f"Accuracy: {acc:.4f}")
+                        self.logger.info(f"Recall: {rec:.4f}")
+                        self.logger.info(f"Precision: {prec:.4f}")
+                        self.logger.info(f"F1-Score: {f1:.4f}")
+                        self.logger.log_confusion_matrix(cm, "Confusion Matrix: ")
                 
-                # Log fold timing
-                self.logger.info(f"Fold {fold + 1} training time: {fold_time:.2f} seconds")
-                
-                metrics['accuracy'].append(acc)
-                metrics['recall'].append(rec)
-                metrics['precision'].append(prec)
-                metrics['f1_score'].append(f1)
-                metrics['confusion_matrices'].append(cm)
-                
-                if debug_mode:
-                    self.debug_logger.log_metrics({
-                        'accuracy': acc,
-                        'recall': rec,
-                        'precision': prec,
-                        'f1_score': f1
-                    }, f"Fold {fold + 1} Results")
-                    self.debug_logger.log_array_info(cm, f"Fold {fold + 1} Confusion Matrix")
-                
-                self.logger.info(f"Fold {fold + 1} results:")
-                self.logger.info(f"Accuracy: {acc:.4f}")
-                self.logger.info(f"Recall: {rec:.4f}")
-                self.logger.info(f"Precision: {prec:.4f}")
-                self.logger.info(f"F1-Score: {f1:.4f}")
-                self.logger.log_confusion_matrix(cm, "Confusion Matrix: ")
+                # Average the losses across folds
+                if fold_losses:
+                    if model_name == "d_lstm_mlp":
+                        # Average LSTM and MLP losses separately
+                        try:
+                            avg_lstm_losses = np.mean([fold['lstm'] for fold in fold_losses if isinstance(fold, dict) and 'lstm' in fold], axis=0)
+                            avg_mlp_losses = np.mean([fold['mlp'] for fold in fold_losses if isinstance(fold, dict) and 'mlp' in fold], axis=0)
+                            metrics['training_losses'] = {
+                                'lstm': avg_lstm_losses.tolist() if isinstance(avg_lstm_losses, np.ndarray) else [],
+                                'mlp': avg_mlp_losses.tolist() if isinstance(avg_mlp_losses, np.ndarray) else []
+                            }
+                        except Exception as e:
+                            self.logger.warning(f"Error averaging d_lstm_mlp losses: {str(e)}")
+                            metrics['training_losses'] = {'lstm': [], 'mlp': []}
+                    else:
+                        try:
+                            avg_losses = np.mean(fold_losses, axis=0)
+                            metrics['training_losses'] = avg_losses.tolist() if isinstance(avg_losses, np.ndarray) else []
+                        except Exception as e:
+                            self.logger.warning(f"Error averaging losses: {str(e)}")
+                            metrics['training_losses'] = []
             
             # Calculate total training time
             total_time = time.time() - total_start_time
@@ -264,9 +486,19 @@ class LoanRiskPredictor:
             # Log timing metrics
             self.logger.info("\nTraining Time Metrics:")
             self.logger.info(f"Total training time: {total_time:.2f} seconds")
-            self.logger.info(f"Average fold training time: {np.mean(self.timing_metrics['fold_times']):.2f} seconds")
-            self.logger.info(f"Min fold training time: {min(self.timing_metrics['fold_times']):.2f} seconds")
-            self.logger.info(f"Max fold training time: {max(self.timing_metrics['fold_times']):.2f} seconds")
+            
+            # Only calculate and log fold statistics if we have fold times
+            if self.timing_metrics['fold_times']:
+                avg_fold_time = np.mean(self.timing_metrics['fold_times'])
+                min_fold_time = min(self.timing_metrics['fold_times'])
+                max_fold_time = max(self.timing_metrics['fold_times'])
+                
+                self.logger.info(f"Average fold training time: {avg_fold_time:.2f} seconds")
+                self.logger.info(f"Min fold training time: {min_fold_time:.2f} seconds")
+                self.logger.info(f"Max fold training time: {max_fold_time:.2f} seconds")
+            else:
+                # For single train/test split, just log the total time
+                self.logger.info("Single train/test split - no fold statistics available")
             
             # Calculate and log average metrics
             avg_metrics = {
@@ -294,10 +526,16 @@ class LoanRiskPredictor:
             metrics['timing'] = {
                 'total_time': total_time,
                 'fold_times': self.timing_metrics['fold_times'],
-                'avg_fold_time': np.mean(self.timing_metrics['fold_times']),
-                'min_fold_time': min(self.timing_metrics['fold_times']),
-                'max_fold_time': max(self.timing_metrics['fold_times'])
+                'avg_fold_time': np.mean(self.timing_metrics['fold_times']) if self.timing_metrics['fold_times'] else total_time,
+                'min_fold_time': min(self.timing_metrics['fold_times']) if self.timing_metrics['fold_times'] else total_time,
+                'max_fold_time': max(self.timing_metrics['fold_times']) if self.timing_metrics['fold_times'] else total_time
             }
+            
+            # Plot individual model loss and combined losses
+            # if model_name in self.model_losses: 
+            #     model = ModelFactory.create_model(model_name)
+            #     model.train_losses = self.model_losses[model_name]
+            #     model.plot_train_loss()  # Plot individual model loss
             
             return metrics
             
