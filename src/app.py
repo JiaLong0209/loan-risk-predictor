@@ -32,6 +32,45 @@ class LoanRiskPredictor:
             'total_time': 0.0
         }
 
+    def _train_d_lstm_mlp(self, X_train: np.ndarray, X_val: np.ndarray, y_train: np.ndarray, y_val: np.ndarray) -> Tuple[float, float, float, float, np.ndarray]:
+        """Special training method for d_lstm_mlp model that combines D-LSTM and MLP.
+        
+        Args:
+            X_train: Training features
+            X_val: Validation features
+            y_train: Training labels
+            y_val: Validation labels
+            
+        Returns:
+            Tuple of (accuracy, recall, precision, f1_score, confusion_matrix)
+        """
+        # Step 1: Train D-LSTM model
+        self.logger.info("Training D-LSTM model...")
+        d_lstm_model = ModelFactory.create_model("d_lstm")
+        d_lstm_model.train(X_train, y_train)
+        
+        # Step 2: Get D-LSTM predictions and append to features
+        self.logger.info("Getting D-LSTM predictions...")
+        d_lstm_train_pred = d_lstm_model.predict(X_train)
+        d_lstm_val_pred = d_lstm_model.predict(X_val)
+        
+        # Reshape predictions to 2D if needed
+        if len(d_lstm_train_pred.shape) == 1:
+            d_lstm_train_pred = d_lstm_train_pred.reshape(-1, 1)
+            d_lstm_val_pred = d_lstm_val_pred.reshape(-1, 1)
+        
+        # Combine original features with D-LSTM predictions
+        X_train_combined = np.hstack([X_train, d_lstm_train_pred])
+        X_val_combined = np.hstack([X_val, d_lstm_val_pred])
+        
+        # Step 3: Train MLP model on combined features
+        self.logger.info(f"Training MLP model on combined features, shape = {X_train_combined.shape}")
+        mlp_model = ModelFactory.create_model("mlp")
+        mlp_model.train(X_train_combined, y_train)
+        
+        # Step 4: Evaluate the final model
+        return mlp_model.evaluate(X_val_combined, y_val)
+
     def run(self, model_name: str = None, subsample_rate: float = 1.0, n_folds: int = 5,
             debug_mode: bool = False, use_feature_engineering: bool = True) -> Dict[str, List[float]]:
         """Run the loan risk prediction pipeline with K-fold cross-validation."""
@@ -101,9 +140,31 @@ class LoanRiskPredictor:
                 
                 # Check if fused features exist and have matching shape
                 if os.path.exists(fused_features_path):
+                    n_features = self.config.get('features.n_features')
+                    encoding_size = self.config.get('models.hyperparameters.autoencoder.encoding_size')
+
+                    expected_fused_feature_shape = np.array((normalized_data.shape[0], n_features))
+
+                    if self.config.get('feature_engineering.use_autoencoder'):
+                        expected_fused_feature_shape[1] = encoding_size
+                        self.logger.info(f"Expected Fused Features Shape: {expected_fused_feature_shape}")
+
+                        if self.config.get('feature_engineering.append_autoencoder_features'):
+                            expected_fused_feature_shape[1] += n_features
+                            self.logger.info(f"Expected Fused Features Shape: {expected_fused_feature_shape}")
+
+                    if self.config.get('feature_engineering.append_normalized_features'):
+                        expected_fused_feature_shape[1] += normalized_data.shape[1]
+                        self.logger.info(f"Expected Fused Features Shape: {expected_fused_feature_shape}")
+
                     try:
                         fused_features = pd.read_csv(fused_features_path).values
-                        if fused_features.shape[0] == normalized_data.shape[0]:
+                        self.logger.info(f"Existed Fused Features Shape: {fused_features.shape}")
+                        
+                        self.logger.info(f"Expected Fused Features Shape: {expected_fused_feature_shape}")
+                        # self.logger.info(f"Normalied Data Shape{normalized_data.shape}")
+                        if (fused_features.shape == expected_fused_feature_shape).all() :
+                        # if fused_features.shape[0] == normalized_data.shape[0] :
                             self.logger.info(f"Using cached fused features: {fused_features_path}")
                             encoded_features = fused_features
                         else:
@@ -154,11 +215,18 @@ class LoanRiskPredictor:
                     self.debug_logger.log_array_info(X_val, f"Fold {fold + 1} Validation Data")
                     self.debug_logger.log_array_info(y_val, f"Fold {fold + 1} Validation Labels")
                 
-                # Create and train model
-                model = ModelFactory.create_model(model_name)
-                with tqdm(total=1, desc=f"Training {model_name}") as pbar:
-                    model.train(X_train, y_train)
-                    pbar.update(1)
+                # Special handling for d_lstm_mlp model
+                if model_name == "d_lstm_mlp":
+                    acc, rec, prec, f1, cm = self._train_d_lstm_mlp(X_train, X_val, y_train, y_val)
+                else:
+                    # Create and train model (original code)
+                    model = ModelFactory.create_model(model_name)
+                    with tqdm(total=1, desc=f"Training {model_name}") as pbar:
+                        model.train(X_train, y_train)
+                        pbar.update(1)
+                    
+                    # Evaluate model
+                    acc, rec, prec, f1, cm = model.evaluate(X_val, y_val)
                 
                 # Calculate fold training time
                 fold_time = time.time() - fold_start_time
@@ -166,9 +234,6 @@ class LoanRiskPredictor:
                 
                 # Log fold timing
                 self.logger.info(f"Fold {fold + 1} training time: {fold_time:.2f} seconds")
-                
-                # Evaluate model
-                acc, rec, prec, f1, cm = model.evaluate(X_val, y_val)
                 
                 metrics['accuracy'].append(acc)
                 metrics['recall'].append(rec)
@@ -253,6 +318,7 @@ class LoanRiskPredictor:
         """
         n_features = self.config.get('features.n_features')
         append_autoencoder_features = self.config.get('feature_engineering.append_autoencoder_features', True)
+        append_normalized_data = self.config.get('feature_engineering.append_normalized_features', True)
         
         with tqdm(total=3, desc="Feature Engineering") as pbar:
             # Step 1: Compute Kraskov MI and weight features
@@ -295,7 +361,14 @@ class LoanRiskPredictor:
             else:
                 final_features = weighted_features
                 pbar.update(2)  # Skip autoencoder steps
-            
+
+            if append_normalized_data:
+                final_features = np.hstack([normalized_data, final_features])   
+                self.logger.info(f"Append normalized data, shape: {normalized_data.shape}")
+
+            self.logger.info(f"Final features shape: {final_features.shape}")
+                
+
             return final_features
 
     def run_all_models(self, subsample_rate: float = 1.0, n_folds: int = 5, debug_mode: bool = False) -> Dict[str, Dict[str, List[float]]]:

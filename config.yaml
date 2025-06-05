@@ -10,7 +10,7 @@ data:
   train_loss_dir: "charts/train_loss"
 
 features:
-  n_features: 4
+  n_features: 5
   categorical_columns:
     - 'Married/Single'
     - 'House_Ownership'
@@ -24,11 +24,14 @@ features:
 
 feature_engineering:
   max_samples: 10000
-  use_autoencoder: true
-  append_autoencoder_features: true
   use_weighted_input_for_autoencoder: false  # If false, default to normalized input
   kraskov_mi:
     k_neighbors: 5
+
+  # The following config Will change the final feature shape: 
+  use_autoencoder: true
+  append_autoencoder_features: true
+  append_normalized_features: true
 
 logging:
   level: 'INFO'
@@ -41,7 +44,7 @@ models:
   hyperparameters:
     d_lstm_mlp:
       lstm:
-        epochs: 20
+        epochs: 40
         learning_rate: 0.001
         batch_size: 64
         hidden_size: 64
@@ -50,7 +53,7 @@ models:
         optimizer: "adam"
         bidirectional: false
       mlp:
-        epochs: 20
+        epochs: 40
         learning_rate: 0.001
         batch_size: 64
         hidden_layers: [256, 128, 64, 32]
@@ -58,16 +61,16 @@ models:
         optimizer: "adam"
 
     autoencoder:
-      epochs: 10
+      epochs: 40
       learning_rate: 0.001
       batch_size: 64
       encoding_size: 3
-      hidden_layers: [256, 128, 64, 32]
+      hidden_layers: [128, 64, 32]
       dropout_rate: 0.2
       optimizer: "adam"
 
     d_lstm:
-      epochs: 20
+      epochs: 40
       learning_rate: 0.001
       batch_size: 64
       hidden_size: 64
@@ -77,7 +80,7 @@ models:
       bidirectional: false
 
     mlp:
-      epochs: 20
+      epochs: 40
       learning_rate: 0.001
       batch_size: 64
       hidden_layers: [256, 128, 64, 32]
@@ -85,7 +88,7 @@ models:
       optimizer: "adam"
 
     rnn:
-      epochs: 20
+      epochs: 40
       learning_rate: 0.001
       batch_size: 64
       hidden_size: 64
@@ -95,7 +98,7 @@ models:
 
     cnn_lightgbm:
       cnn:
-        epochs: 10
+        epochs: 40
         learning_rate: 0.001
         batch_size: 64
         conv_channels: [32, 64]
@@ -109,7 +112,7 @@ models:
         feature_fraction: 0.9
 
     dnn:
-      epochs: 5
+      epochs: 40
       learning_rate: 0.001
       batch_size: 64
       hidden_layers: [256, 128, 64, 32]
@@ -117,7 +120,7 @@ models:
       optimizer: "adam"
 
     xgboost:
-      max_depth: 6
+      max_depth: 10
       learning_rate: 0.1
       num_boost_round: 100
       subsample: 0.8

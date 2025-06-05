@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm 
 from ..config.config import ConfigManager
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.model_selection import train_test_split
 
 class FeatureEngineer:
@@ -36,7 +37,7 @@ class FeatureEngineer:
 
         n_sub_samples = X_sub.shape[0]
 
-        for i in range(n_features):
+        for i in tqdm(range(n_features)):
             # Use 1D feature vector for KNN
             feature_column = X_sub[:, i].reshape(-1, 1)
 
@@ -62,18 +63,42 @@ class FeatureEngineer:
         mi_scores = self.calculate_kraskov_mi(X, y, k)
 
         # Normalize scores to get weights
-        total_score = np.sum(mi_scores)
-        self.feature_weights = mi_scores / total_score if total_score > 0 else np.ones_like(mi_scores) / len(mi_scores)
+        print(f"mi_scores: {mi_scores}")
+
+        mi_scores = mi_scores - np.min(mi_scores)  # Shift to non-negative values
+        print(f"mi_scores: {mi_scores}")
+        self.feature_weights = mi_scores / np.sum(mi_scores)
+
+        # total_score = np.sum(mi_scores)
+        # self.feature_weights = mi_scores / total_score if total_score > 0 else np.ones_like(mi_scores) / len(mi_scores)
         
         # Select top features
+        print(f"self.feature_weights.shape: {self.feature_weights.shape}")
+        print(f"self.feature_weights: {self.feature_weights}")
+
         self.selected_indices = np.argsort(mi_scores)[-n_features:]
+
+        print(f"self.selected_indices: {X[0:1, self.selected_indices]}")
+
         weighted_features = X[:, self.selected_indices] * self.feature_weights[self.selected_indices]
+        print(f"weighted_features: {weighted_features[0:1, :]}")
+
+        weighted_features = self.standardize_features(weighted_features)
+        print(f"weighted_features: {weighted_features[0:1, :]}")
+
+        # weighted_features = X[:, self.selected_indices] + self.feature_weights[self.selected_indices]
         
         return weighted_features
     
     def normalize_features(self, X: np.ndarray) -> np.ndarray:
         """Normalize features using min-max scaling."""
-        return (X - X.min(axis=0)) / (X.max(axis=0) - X.min(axis=0) + 1e-10)
+        scaler = MinMaxScaler()
+        return scaler.fit_transform(X)
+
+    def standardize_features(self, X: np.ndarray) -> np.ndarray:
+        """Standardize features using Z-score normalization."""
+        scaler = StandardScaler()
+        return scaler.fit_transform(X)
     
     def process_features(self, X: np.ndarray, y: np.ndarray, n_features: int = 5) -> np.ndarray:
         """Process features through the complete pipeline.
