@@ -64,17 +64,15 @@ class BaseModel(ABC):
         if not self.train_losses:
             print(f"No training losses recorded for {self.model_name}")
             return
-
-        plt.figure(figsize=(10, 6))
+        plt.figure(figsize=(11, 6))
         plt.plot(self.train_losses, label='Training Loss', color='#2ecc71', linewidth=2)
         plt.title(f'Training Loss Curve - {self.model_name.upper()}', fontsize=12)
         plt.xlabel('Epoch', fontsize=10)
 
         epochs = len(self.train_losses)
         # plt.xticks(np.linspace(0, epochs - 1, num=10).tolist() + [epochs - 1], )
-        # plt.xticks(ticks=range(0, epochs, 2), labels=[str(i + 1) for i in range(0, epochs, 2)])
-        plt.xticks([])
-        plt.xlim(0, epochs-1)
+        plt.xticks(ticks=range(epochs), labels=[str(i + 1) for i in range(epochs)], fontsize=8)
+        # plt.xticks(np.arange(1, epochs+1, step=5.0))
 
         plt.ylabel('Loss', fontsize=10)
         plt.grid(True, linestyle='--', alpha=0.7)

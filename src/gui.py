@@ -268,11 +268,13 @@ class LoanRiskPredictorGUI:
         # Create tabs
         self.tabview.add("Performance Metrics")
         self.tabview.add("Model Comparison")
-        self.tabview.add("Training Losses")  # Add new tab for training losses
+        self.tabview.add("Training Losses")
+        self.tabview.add("Training Time")  # Add new tab for training time
 
         figsize1 = (15, 20)
         figsize2 = (10, 10)
         figsize3 = (12, 8)  # Size for training loss plot
+        figsize4 = (10, 6)  # Size for training time plot
         
         # Create figures for each tab
         self.fig1 = plt.figure(figsize=figsize1)
@@ -293,10 +295,17 @@ class LoanRiskPredictorGUI:
         self.canvas3 = FigureCanvasTkAgg(self.fig3, master=self.tabview.tab("Training Losses"))
         self.canvas3.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
 
+        # Create figure for training time
+        self.fig4 = plt.figure(figsize=figsize4)
+        self.ax5 = self.fig4.add_subplot(111)  # Training time plot
+        self.canvas4 = FigureCanvasTkAgg(self.fig4, master=self.tabview.tab("Training Time"))
+        self.canvas4.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
+
         # Adjust layout to accommodate the legend
         self.fig1.subplots_adjust(left=0.1, right=0.8, hspace=0.2, wspace=0.2, top=0.95, bottom=0.05)
         self.fig2.subplots_adjust(right=0.9)
         self.fig3.subplots_adjust(right=0.95)  # Adjust for legend
+        self.fig4.subplots_adjust(right=0.95)  # Adjust for legend
 
     def update_charts(self):
         """Update the charts with the latest results."""
@@ -304,7 +313,8 @@ class LoanRiskPredictorGUI:
         self.ax1.clear()
         self.ax2.clear()
         self.ax3.clear()
-        self.ax4.clear()  # Clear training loss plot
+        self.ax4.clear()
+        self.ax5.clear()  # Clear training time plot
         
         # Prepare data for charts
         models = list(self.results.keys())
@@ -314,7 +324,19 @@ class LoanRiskPredictorGUI:
             'precision': [np.mean(self.results[m]['precision']) for m in models],
             'f1_score': [np.mean(self.results[m]['f1_score']) for m in models]
         }
-        
+
+        # Prepare training time data
+        training_times = []
+        for model in models:
+            if 'timing' in self.results[model]:
+                timing = self.results[model]['timing']
+                if 'total_time' in timing:
+                    training_times.append(timing['total_time'])
+                else:
+                    training_times.append(0)
+            else:
+                training_times.append(0)
+
         model_colors = plt.cm.Set3(np.linspace(0, 1, len(models)))
         fontsize = 8
         rotation = 23
@@ -493,6 +515,42 @@ class LoanRiskPredictorGUI:
                 self.ax4.set_xticks([])
                 self.ax4.set_yticks([])
 
+        # Update training time plot
+        if any(training_times):  # Only plot if we have timing data
+            # Sort models by training time
+            sorted_indices = np.argsort(training_times)
+            sorted_models = [models[i] for i in sorted_indices]
+            sorted_times = [training_times[i] for i in sorted_indices]
+
+            # Create horizontal bar chart for training times
+            bars = self.ax5.barh(sorted_models, sorted_times, color=plt.cm.Set3(np.linspace(0, 1, len(models))))
+            
+            # Add value labels on the bars
+            for bar in bars:
+                width = bar.get_width()
+                self.ax5.text(width, bar.get_y() + bar.get_height()/2.,
+                            f'{width:.1f}s',
+                            ha='left', va='center', fontsize=10, color='#222222',
+                            bbox=dict(facecolor='white', alpha=0.7, edgecolor='none', pad=1))
+
+            self.ax5.set_title('Model Training Time Comparison', fontsize=12)
+            self.ax5.set_xlabel('Training Time (seconds)', fontsize=10)
+            self.ax5.grid(True, linestyle='--', alpha=0.7)
+            self.ax5.set_facecolor('#f2f2f2')
+            
+            # Adjust layout
+            self.fig4.tight_layout()
+        else:
+            # Display message if no timing data
+            self.ax5.text(0.5, 0.5, 'No training time data available',
+                        horizontalalignment='center',
+                        verticalalignment='center',
+                        transform=self.ax5.transAxes,
+                        fontsize=12)
+            self.ax5.set_title('Training Time Comparison', fontsize=12)
+            self.ax5.set_xticks([])
+            self.ax5.set_yticks([])
+
         # Update the results text display
         def update_results_text():
             self.results_text.delete("1.0", ctk.END)
@@ -517,6 +575,7 @@ class LoanRiskPredictorGUI:
         self.canvas1.draw()
         self.canvas2.draw()
         self.canvas3.draw()
+        self.canvas4.draw()
 
         # Save charts
         graph_dir = self.config.get("data.graph_dir")
@@ -526,6 +585,8 @@ class LoanRiskPredictorGUI:
         self.fig2.savefig(os.path.join(graph_dir, "model_comparison.png"))
         if valid_losses:  # Only save if we have valid losses
             self.fig3.savefig(os.path.join(graph_dir, "all_models_training_loss.png"))
+        if any(training_times):  # Only save if we have timing data
+            self.fig4.savefig(os.path.join(graph_dir, "training_time_comparison.png"))
             
             # Remove custom plotting code for D_LSTM_MLP components since we're using base_model's plot_train_loss
             # The individual component plots are now saved in app.py using the base_model's plot_train_loss method
