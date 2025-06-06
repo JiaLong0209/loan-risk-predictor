@@ -31,7 +31,7 @@ feature_engineering:
   # The following config Will change the final feature shape: 
   use_autoencoder: true
   append_autoencoder_features: true
-  append_normalized_features: true
+  append_normalized_features: false
 
 logging:
   level: 'INFO'

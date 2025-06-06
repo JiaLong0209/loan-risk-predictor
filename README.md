@@ -4,15 +4,15 @@ A machine learning system for predicting loan risk using multiple models, includ
 
 ## Features
 
-- Multiple model implementations
-- Stratified sampling for training
-- K-fold cross-validation
-- Subsample rate control
-- Interactive GUI with real-time visualization
-- Performance metrics visualization (accuracy, recall, precision, f1-score)
-- Model comparison charts
+- Multiple machine learning and deep learning models for loan risk prediction
+- Feature engineering and autoencoder-based feature extraction
+- K-fold cross-validation support
 - Training loss comparison across all deep learning models
 - Individual model training loss tracking
+- Training time comparison across all models
+- Comprehensive model performance metrics
+- Real-time GUI visualization
+- Configurable model parameters and training settings
 
 ## Prerequisites
 
@@ -241,24 +241,42 @@ Note: Screenshots will be added to the `docs/images/` directory. Please ensure t
 
 ## Visualization Capabilities
 
-The system provides comprehensive visualization tools for model analysis:
+1. **Training Time Comparison**
+   - Comparative visualization of training times across all models
+   - Horizontal bar chart showing models sorted by training time
+   - Clear time labels in seconds for each model
+   - Grid lines and consistent styling for better readability
+   - Saved as 'training_time_comparison.png' in the graph directory
 
-1. **Training Loss Comparison**
+2. **Training Loss Comparison**
    - Comparative visualization of training losses across all deep learning models
    - Color-coded loss curves for easy model identification
    - Final loss value annotations for each model
    - Grid lines and legend for better readability
    - Saved as 'all_models_training_loss.png' in the graph directory
 
-2. **Performance Metrics**
-   - Accuracy, recall, precision, and F1-score visualization
+3. **Performance Metrics**
+   - Visualization of accuracy, recall, precision, and F1-score
    - Confusion matrix visualization
    - Model comparison charts for performance metrics
 
-3. **Real-time GUI Visualization**
+4. **Real-time GUI Visualization**
    - Interactive plots during model training
    - Real-time updates of training progress
    - Model performance comparison in GUI
+   - Training time tracking and comparison
+   - Multiple visualization tabs for different metrics
+
+5. **K-Fold Cross-Validation Metrics**
+   - Comprehensive visualization of model performance across k-folds
+   - Two-panel visualization for each model:
+     * Line chart showing metric trends (Accuracy, Recall, Precision, F1) across folds
+     * Bar chart displaying average metrics with standard deviation error bars
+   - High-resolution (300 DPI) PNG output
+   - Value labels and grid lines for better readability
+   - Consistent color scheme using Set2 colormap
+   - Saved as '{model_name}_kfold_metrics.png' in the kfold_metrics/ subdirectory
+   - Provides insights into model stability and performance consistency
 
 ## Contributing
 

@@ -133,6 +133,88 @@ class LoanRiskPredictor:
                    dpi=300, bbox_inches='tight')
         plt.close()
 
+    def _save_kfold_metrics(self, model_name: str, metrics: Dict[str, List[float]], n_folds: int) -> None:
+        """Save k-fold metrics visualization for a model as a line chart."""
+        try:
+            # Create metrics directory if it doesn't exist
+            metrics_dir = os.path.join(self.config.get("data.graph_dir"), "kfold_metrics")
+            if not os.path.exists(metrics_dir):
+                os.makedirs(metrics_dir)
+
+            # Create figure with subplots
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8,8))
+
+            # Plot metrics for each fold
+            folds = range(1, n_folds + 1)
+            metrics_to_plot = {
+                'Accuracy': metrics['accuracy'],
+                'Recall': metrics['recall'],
+                'Precision': metrics['precision'],
+                'F1-Score': metrics['f1_score']
+            }
+
+            # Plot individual metrics
+            colors = plt.cm.Set2(np.linspace(0, 1, len(metrics_to_plot)))
+            for (metric_name, values), color in zip(metrics_to_plot.items(), colors):
+                ax1.plot(folds, values, marker='o', label=metric_name, color=color, linewidth=2)
+                
+                # Add value labels
+                for x, y in zip(folds, values):
+                    ax1.text(x, y, f'{y:.3f}', ha='center', va='bottom', fontsize=8)
+            
+            # Customize first subplot
+            ax1.set_title(f'{model_name} - Metrics Across Folds', fontsize=12, pad=20)
+            ax1.set_xlabel('Fold', fontsize=10)
+            ax1.set_ylabel('Score', fontsize=10)
+            ax1.set_xticks(folds)
+            ax1.grid(True, linestyle='--', alpha=0.7)
+            ax1.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+            
+            # Calculate and plot average metrics with standard deviation
+            avg_metrics = {
+                'Accuracy': np.mean(metrics['accuracy']),
+                'Recall': np.mean(metrics['recall']),
+                'Precision': np.mean(metrics['precision']),
+                'F1-Score': np.mean(metrics['f1_score'])
+            }
+            
+            std_metrics = {
+                'Accuracy': np.std(metrics['accuracy']),
+                'Recall': np.std(metrics['recall']),
+                'Precision': np.std(metrics['precision']),
+                'F1-Score': np.std(metrics['f1_score'])
+            }
+            
+            # Plot average metrics with error bars
+            x = np.arange(len(avg_metrics))
+            width = 0.2
+            
+            for i, (metric_name, avg_value) in enumerate(avg_metrics.items()):
+                ax2.bar(x[i], avg_value, width, yerr=std_metrics[metric_name],
+                       color=colors[i], label=metric_name, capsize=5)
+                
+                # Add value labels
+                ax2.text(x[i], avg_value, f'{avg_value:.3f}\n±{std_metrics[metric_name]:.3f}',
+                        ha='center', va='bottom', fontsize=8)
+            
+            # Customize second subplot
+            ax2.set_title('Average Metrics with Standard Deviation', fontsize=12, pad=20)
+            ax2.set_xticks([])  # Remove x-ticks as they're not meaningful for averages
+            ax2.set_ylabel('Score', fontsize=10)
+            ax2.grid(True, linestyle='--', alpha=0.7)
+            ax2.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
+            
+            # Adjust layout and save
+            plt.tight_layout()
+            chart_path = os.path.join(metrics_dir, f"{model_name}_kfold_metrics.png")
+            plt.savefig(chart_path, dpi=300, bbox_inches='tight')
+            plt.close()
+            
+            self.logger.info(f"Saved k-fold metrics visualization to {chart_path}")
+
+        except Exception as e:
+            self.logger.error(f"Error saving k-fold metrics visualization: {str(e)}")
+
     def run(self, model_name: str = None, subsample_rate: float = 1.0, n_folds: int = 5,
             debug_mode: bool = False, use_feature_engineering: bool = True) -> Dict[str, List[float]]:
         """Run the loan risk prediction pipeline with K-fold cross-validation or single train/test split."""
@@ -531,12 +613,10 @@ class LoanRiskPredictor:
                 'max_fold_time': max(self.timing_metrics['fold_times']) if self.timing_metrics['fold_times'] else total_time
             }
             
-            # Plot individual model loss and combined losses
-            # if model_name in self.model_losses: 
-            #     model = ModelFactory.create_model(model_name)
-            #     model.train_losses = self.model_losses[model_name]
-            #     model.plot_train_loss()  # Plot individual model loss
-            
+            # After calculating metrics and before returning
+            if n_folds > 1:  # Only save k-fold metrics if we're doing k-fold cross validation
+                self._save_kfold_metrics(model_name, metrics, n_folds)
+
             return metrics
             
         except Exception as e:

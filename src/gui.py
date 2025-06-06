@@ -271,10 +271,10 @@ class LoanRiskPredictorGUI:
         self.tabview.add("Training Losses")
         self.tabview.add("Training Time")  # Add new tab for training time
 
-        figsize1 = (15, 20)
-        figsize2 = (10, 10)
-        figsize3 = (12, 8)  # Size for training loss plot
-        figsize4 = (10, 6)  # Size for training time plot
+        figsize1 = (10, 15)
+        figsize2 = (7, 7)
+        figsize3 = (8, 6)  # Size for training loss plot
+        figsize4 = (8, 6)  # Size for training time plot
         
         # Create figures for each tab
         self.fig1 = plt.figure(figsize=figsize1)
@@ -367,10 +367,10 @@ class LoanRiskPredictorGUI:
         add_value_labels(bars4)
         
         self.ax1.set_ylabel('Score', fontsize=fontsize)
-        self.ax1.set_title('Average Model Performance Metrics', fontsize=fontsize*1.5)
+        self.ax1.set_title('Average Model Performance Metrics', fontsize=fontsize*1.2)
         self.ax1.set_facecolor(facecolors[0])
         self.ax1.set_xticks(x)
-        self.ax1.set_xticklabels(models, rotation=rotation, fontsize=fontsize)
+        self.ax1.set_xticklabels(models, rotation=rotation, fontsize=fontsize-1)
         self.ax1.legend(loc='upper left', bbox_to_anchor=(1.0, 0.4), facecolor=facecolors[1], fontsize=fontsize)
         self.ax1.grid(True, linestyle='--', alpha=0.7, color=grid_colors[1])
 
@@ -391,7 +391,7 @@ class LoanRiskPredictorGUI:
         
         self.ax2.set_facecolor(facecolors[1])
         self.ax2.set_xlabel('Score', fontsize=fontsize)
-        self.ax2.set_title('Model Performance Comparison', fontsize=fontsize*1.3)
+        self.ax2.set_title('Model Performance Comparison', fontsize=fontsize*1.2)
         self.ax2.set_yticks(y + height * (len(models) - 1) / 2)
         self.ax2.set_yticklabels(['Accuracy', 'Recall', 'Precision', 'F1-Score'], fontsize=fontsize, rotation=rotation)
 
@@ -447,13 +447,13 @@ class LoanRiskPredictorGUI:
         
         self.ax3.set_title('Model Performance Comparison (Radar Chart)', fontsize=fontsize*1.5)
         # Move legend outside the plot to avoid overlap
-        self.ax3.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1), fontsize=fontsize*1.3, facecolor=facecolors[1])
+        self.ax3.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1), fontsize=fontsize-2, facecolor=facecolors[1])
 
         leg = self.ax3.legend()
 
         # change the line width for the legend
         for line in leg.get_lines():
-            line.set_linewidth(fontsize)
+            line.set_linewidth(fontsize-2)
         
         # Update training loss plot
         if self.training_losses:  # Use the stored training losses
@@ -636,8 +636,9 @@ class LoanRiskPredictorGUI:
             self.kfold_frame.pack(pady=5, fill=ctk.X)
             self.kfold_entry_frame.pack(pady=5, fill=ctk.X)
         else:
-            self.kfold_frame.pack_forget()
-            self.kfold_entry_frame.pack_forget()
+            # self.kfold_frame.pack_forget()
+            # self.kfold_entry_frame.pack_forget()
+            pass
 
     def run_models(self):
         """Run the selected models and update the display."""
