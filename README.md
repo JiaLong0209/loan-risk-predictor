@@ -2,6 +2,8 @@
 
 A machine learning system for predicting loan risk using multiple models, including D-LSTM-MLP, D-LSTM, MLP, CNN-LightGBM, DNN, Random Forest, XGBoost and RNN.
 
+![Main GUI](docs/images/gui_main.png)
+
 ## Features
 
 - Multiple machine learning and deep learning models for loan risk prediction
@@ -70,21 +72,23 @@ poetry run python -m src.main --gui # Run GUI
 src/
 ├── config/
 │   └── config.py
-├── data/
+├── data_pipeline/
+│   ├── feature_engineering.py
 │   └── data_repository.py
 ├── models/
+│   ├── autoencoder.py
 │   ├── base_model.py
-│   ├── model_factory.py
 │   ├── d_lstm_mlp_model.py    
 │   ├── d_lstm_model.py
 │   ├── mlp_model.py
 │   ├── cnn_lightgbm_model.py
 │   ├── dnn_model.py
+│   ├── model_factory.py
 │   ├── random_forest_model.py
-│   └── rnn_model.py
+│   ├── rnn_model.py
+│   └── xgboost_model.py
 ├── utils/
 │   ├── test_utils.py
-│   ├── feature_engineering.py
 │   └── logger.py
 ├── app.py
 ├── gui.py
@@ -164,11 +168,13 @@ The system provides an intuitive graphical user interface for easy model trainin
 
 ### Main Interface
 ![Main GUI Interface](docs/images/gui_main.png)
-*Main interface showing model selection, training parameters, and control buttons*
 
 The GUI offers the following features:
 
 #### Control Panel
+
+![Main GUI Control Panel](docs/images/gui_control_panel.png)
+
 - **Model Selection**
   - Checkbox selection for multiple models
   - Support for all available models (D-LSTM-MLP, D-LSTM, MLP, etc.)
@@ -186,12 +192,17 @@ The GUI offers the following features:
   - Run Models: Start training process
 
 #### Visualization Panel
-![Training Progress](docs/images/gui_training.png)
-*Real-time training progress visualization*
+![Results Tab 1](docs/images/gui_tab1.png)
+*Performance Metrics*
 
+![Results Tab 2](docs/images/gui_tab2.png)
+*Model Comparison (Radar Chart)*
 
-![Results Display](docs/images/gui_results.png)
-*Results panel showing performance metrics and visualizations*
+![Results Tab 3](docs/images/gui_tab3.png)
+*Training Losses*
+
+![Results Tab 4](docs/images/gui_tab4.png)
+*Training Time*
 
 <!-- ### Keyboard Shortcuts
 - `Ctrl+R`: Run selected models
@@ -272,11 +283,41 @@ Note: Screenshots will be added to the `docs/images/` directory. Please ensure t
    - Two-panel visualization for each model:
      * Line chart showing metric trends (Accuracy, Recall, Precision, F1) across folds
      * Bar chart displaying average metrics with standard deviation error bars
-   - High-resolution (300 DPI) PNG output
    - Value labels and grid lines for better readability
    - Consistent color scheme using Set2 colormap
    - Saved as '{model_name}_kfold_metrics.png' in the kfold_metrics/ subdirectory
    - Provides insights into model stability and performance consistency
+
+
+## Saved Model-Specific Visualizations
+
+The system automatically generates and saves detailed visualizations for each model in the `graph_dir` specified in `config.yaml`. These visualizations are not displayed in the GUI but are saved for later analysis:
+
+### Model Training Losses
+- Location: `{graph_dir}/train_loss/`
+- Content: Training loss curves showing model convergence
+- Format: High-resolution line plots with epoch-wise loss values
+- Purpose: Track model training progress and convergence
+
+![d_lstm_mlp-mlp.train_loss.png](docs/images/d_lstm_mlp-mlp.train_loss.png)
+
+### model confusion matrices
+- location: `{graph_dir}/confusion_matrix/`
+- content: heatmap visualization of model predictions
+- format: color-coded matrix showing true vs. predicted labels
+- purpose: detailed analysis of model classification performance
+
+![confusion_matrix_d_lstm_mlp](docs/images/confusion_matrix_d_lstm_mlp.png)
+
+### k-fold cross-validation metrics
+- location: `{graph_dir}/kfold_metrics/`
+- content: two-panel visualization:
+  * line chart of metrics across folds
+  * bar chart of average metrics with standard deviation
+- format: high-resolution plots with detailed annotations
+- purpose: analyze model stability and performance consistency
+
+![d_lstm_mlp_kfold_metrics](docs/images/d_lstm_mlp_kfold_metrics.png)
 
 ## Contributing
 

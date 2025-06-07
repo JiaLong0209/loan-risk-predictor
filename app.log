@@ -119790,3 +119790,1089 @@ Average results across all folds:
 2025-06-06 19:05:00,568 - file_logger - INFO - Precision: 0.2169
 2025-06-06 19:05:00,568 - file_logger - INFO - F1-Score: 0.2381
 2025-06-06 19:05:01,811 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\xgboost_kfold_metrics.png
+2025-06-06 19:14:45,307 - file_logger - INFO - ================ RUN INFO ================
+2025-06-06 19:14:45,310 - file_logger - INFO - model_name: d_lstm_mlp
+2025-06-06 19:14:45,310 - file_logger - INFO - subsample_rate: 1.0
+2025-06-06 19:14:45,310 - file_logger - INFO - n_folds: 10
+2025-06-06 19:14:45,310 - file_logger - INFO - use_feature_engineering: True
+2025-06-06 19:14:45,310 - file_logger - INFO - ============================================
+2025-06-06 19:14:45,310 - file_logger - INFO - Loading and preprocessing data...
+2025-06-06 19:14:45,533 - file_logger - INFO - processed\normalized_data.csv
+2025-06-06 19:14:45,533 - file_logger - INFO - Using processed\normalized_data.csv data.
+2025-06-06 19:14:45,967 - file_logger - INFO - Normalized Data Shape
+2025-06-06 19:14:45,967 - file_logger - INFO - (252000, 12)
+2025-06-06 19:14:45,967 - file_logger - INFO - Expected Fused Features Shape: [252000      3]
+2025-06-06 19:14:45,969 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-06 19:14:46,721 - file_logger - INFO - Existed Fused Features Shape: (252000, 20)
+2025-06-06 19:14:46,721 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-06 19:14:46,721 - file_logger - WARNING - Error loading cached features: Feature shape mismatch
+2025-06-06 19:14:46,721 - file_logger - INFO - Performing feature engineering...
+2025-06-06 19:14:46,724 - file_logger - INFO - Computing Kraskov MI and weighting features...
+2025-06-06 19:15:03,533 - file_logger - INFO - Performing autoencoder feature extraction...
+2025-06-06 19:15:03,535 - file_logger - INFO - use normalized_data for autoencoder_input
+2025-06-06 19:22:39,310 - file_logger - INFO - Combined features shape: (252000, 8)
+2025-06-06 19:22:39,311 - file_logger - INFO - Final features shape: (252000, 8)
+2025-06-06 19:22:40,940 - file_logger - INFO - Performing 10-fold cross-validation...
+2025-06-06 19:22:40,979 - file_logger - INFO - Training fold 1/10...
+2025-06-06 19:22:40,979 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 19:31:20,516 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 19:31:21,284 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 19:38:35,837 - file_logger - INFO - Fold 1 training time: 954.86 seconds
+2025-06-06 19:38:35,837 - file_logger - INFO - Fold 1 results:
+2025-06-06 19:38:35,837 - file_logger - INFO - Accuracy: 0.8803
+2025-06-06 19:38:35,842 - file_logger - INFO - Recall: 0.5382
+2025-06-06 19:38:35,842 - file_logger - INFO - Precision: 0.5126
+2025-06-06 19:38:35,842 - file_logger - INFO - F1-Score: 0.5251
+2025-06-06 19:38:35,842 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20515  1586]
+ [ 1431  1668]]
+2025-06-06 19:38:35,853 - file_logger - INFO - Training fold 2/10...
+2025-06-06 19:38:35,854 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 19:47:13,516 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 19:47:14,180 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 19:54:32,078 - file_logger - INFO - Fold 2 training time: 956.22 seconds
+2025-06-06 19:54:32,078 - file_logger - INFO - Fold 2 results:
+2025-06-06 19:54:32,078 - file_logger - INFO - Accuracy: 0.8765
+2025-06-06 19:54:32,078 - file_logger - INFO - Recall: 0.5686
+2025-06-06 19:54:32,079 - file_logger - INFO - Precision: 0.4980
+2025-06-06 19:54:32,079 - file_logger - INFO - F1-Score: 0.5310
+2025-06-06 19:54:32,079 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20325  1776]
+ [ 1337  1762]]
+2025-06-06 19:54:32,120 - file_logger - INFO - Training fold 3/10...
+2025-06-06 19:54:32,120 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 20:03:09,577 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 20:03:10,217 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 20:10:25,528 - file_logger - INFO - Fold 3 training time: 953.41 seconds
+2025-06-06 20:10:25,528 - file_logger - INFO - Fold 3 results:
+2025-06-06 20:10:25,528 - file_logger - INFO - Accuracy: 0.8777
+2025-06-06 20:10:25,529 - file_logger - INFO - Recall: 0.5240
+2025-06-06 20:10:25,529 - file_logger - INFO - Precision: 0.5025
+2025-06-06 20:10:25,530 - file_logger - INFO - F1-Score: 0.5130
+2025-06-06 20:10:25,530 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20493  1608]
+ [ 1475  1624]]
+2025-06-06 20:10:25,543 - file_logger - INFO - Training fold 4/10...
+2025-06-06 20:10:25,543 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 20:19:55,705 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 20:19:56,455 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 20:26:58,774 - file_logger - INFO - Fold 4 training time: 993.23 seconds
+2025-06-06 20:26:58,774 - file_logger - INFO - Fold 4 results:
+2025-06-06 20:26:58,774 - file_logger - INFO - Accuracy: 0.8812
+2025-06-06 20:26:58,774 - file_logger - INFO - Recall: 0.5137
+2025-06-06 20:26:58,774 - file_logger - INFO - Precision: 0.5172
+2025-06-06 20:26:58,774 - file_logger - INFO - F1-Score: 0.5155
+2025-06-06 20:26:58,774 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20615  1486]
+ [ 1507  1592]]
+2025-06-06 20:26:58,785 - file_logger - INFO - Training fold 5/10...
+2025-06-06 20:26:58,785 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 20:36:33,068 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 20:36:33,750 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 20:44:48,715 - file_logger - INFO - Fold 5 training time: 1069.93 seconds
+2025-06-06 20:44:48,716 - file_logger - INFO - Fold 5 results:
+2025-06-06 20:44:48,716 - file_logger - INFO - Accuracy: 0.8787
+2025-06-06 20:44:48,716 - file_logger - INFO - Recall: 0.5384
+2025-06-06 20:44:48,717 - file_logger - INFO - Precision: 0.5067
+2025-06-06 20:44:48,717 - file_logger - INFO - F1-Score: 0.5221
+2025-06-06 20:44:48,717 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20475  1625]
+ [ 1431  1669]]
+2025-06-06 20:44:48,733 - file_logger - INFO - Training fold 6/10...
+2025-06-06 20:44:48,734 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 20:55:05,870 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 20:55:06,574 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 21:03:05,910 - file_logger - INFO - Fold 6 training time: 1097.18 seconds
+2025-06-06 21:03:05,911 - file_logger - INFO - Fold 6 results:
+2025-06-06 21:03:05,911 - file_logger - INFO - Accuracy: 0.8813
+2025-06-06 21:03:05,911 - file_logger - INFO - Recall: 0.5319
+2025-06-06 21:03:05,912 - file_logger - INFO - Precision: 0.5169
+2025-06-06 21:03:05,912 - file_logger - INFO - F1-Score: 0.5243
+2025-06-06 21:03:05,912 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20559  1541]
+ [ 1451  1649]]
+2025-06-06 21:03:05,929 - file_logger - INFO - Training fold 7/10...
+2025-06-06 21:03:05,929 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 21:12:49,934 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 21:12:50,614 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 21:19:50,386 - file_logger - INFO - Fold 7 training time: 1004.46 seconds
+2025-06-06 21:19:50,386 - file_logger - INFO - Fold 7 results:
+2025-06-06 21:19:50,386 - file_logger - INFO - Accuracy: 0.8789
+2025-06-06 21:19:50,386 - file_logger - INFO - Recall: 0.4971
+2025-06-06 21:19:50,391 - file_logger - INFO - Precision: 0.5079
+2025-06-06 21:19:50,391 - file_logger - INFO - F1-Score: 0.5024
+2025-06-06 21:19:50,391 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20607  1493]
+ [ 1559  1541]]
+2025-06-06 21:19:50,406 - file_logger - INFO - Training fold 8/10...
+2025-06-06 21:19:50,406 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 21:29:25,944 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 21:29:26,651 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 21:36:35,135 - file_logger - INFO - Fold 8 training time: 1004.73 seconds
+2025-06-06 21:36:35,135 - file_logger - INFO - Fold 8 results:
+2025-06-06 21:36:35,135 - file_logger - INFO - Accuracy: 0.8752
+2025-06-06 21:36:35,135 - file_logger - INFO - Recall: 0.5394
+2025-06-06 21:36:35,135 - file_logger - INFO - Precision: 0.4935
+2025-06-06 21:36:35,137 - file_logger - INFO - F1-Score: 0.5154
+2025-06-06 21:36:35,137 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20384  1716]
+ [ 1428  1672]]
+2025-06-06 21:36:35,151 - file_logger - INFO - Training fold 9/10...
+2025-06-06 21:36:35,151 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 21:46:05,413 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 21:46:06,113 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 21:53:05,089 - file_logger - INFO - Fold 9 training time: 989.94 seconds
+2025-06-06 21:53:05,089 - file_logger - INFO - Fold 9 results:
+2025-06-06 21:53:05,089 - file_logger - INFO - Accuracy: 0.8758
+2025-06-06 21:53:05,089 - file_logger - INFO - Recall: 0.5206
+2025-06-06 21:53:05,089 - file_logger - INFO - Precision: 0.4955
+2025-06-06 21:53:05,091 - file_logger - INFO - F1-Score: 0.5078
+2025-06-06 21:53:05,091 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20457  1643]
+ [ 1486  1614]]
+2025-06-06 21:53:05,103 - file_logger - INFO - Training fold 10/10...
+2025-06-06 21:53:05,105 - file_logger - INFO - Training D-LSTM model...
+2025-06-06 22:02:33,513 - file_logger - INFO - Getting D-LSTM predictions...
+2025-06-06 22:02:34,224 - file_logger - INFO - Training MLP model on combined features, shape = (226800, 9)
+2025-06-06 22:09:37,731 - file_logger - INFO - Fold 10 training time: 992.63 seconds
+2025-06-06 22:09:37,731 - file_logger - INFO - Fold 10 results:
+2025-06-06 22:09:37,732 - file_logger - INFO - Accuracy: 0.8762
+2025-06-06 22:09:37,732 - file_logger - INFO - Recall: 0.5442
+2025-06-06 22:09:37,732 - file_logger - INFO - Precision: 0.4972
+2025-06-06 22:09:37,732 - file_logger - INFO - F1-Score: 0.5196
+2025-06-06 22:09:37,732 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20394  1706]
+ [ 1413  1687]]
+2025-06-06 22:09:37,734 - file_logger - INFO - 
+Training Time Metrics:
+2025-06-06 22:09:37,734 - file_logger - INFO - Total training time: 10492.43 seconds
+2025-06-06 22:09:37,734 - file_logger - INFO - Average fold training time: 1001.66 seconds
+2025-06-06 22:09:37,734 - file_logger - INFO - Min fold training time: 953.41 seconds
+2025-06-06 22:09:37,735 - file_logger - INFO - Max fold training time: 1097.18 seconds
+2025-06-06 22:09:37,735 - file_logger - INFO - 
+Average results across all folds:
+2025-06-06 22:09:37,735 - file_logger - INFO - Accuracy: 0.8782
+2025-06-06 22:09:37,736 - file_logger - INFO - Recall: 0.5316
+2025-06-06 22:09:37,737 - file_logger - INFO - Precision: 0.5048
+2025-06-06 22:09:37,737 - file_logger - INFO - F1-Score: 0.5176
+2025-06-06 22:09:38,281 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\d_lstm_mlp_kfold_metrics.png
+2025-06-06 22:09:38,702 - file_logger - INFO - ================ RUN INFO ================
+2025-06-06 22:09:38,702 - file_logger - INFO - model_name: d_lstm
+2025-06-06 22:09:38,702 - file_logger - INFO - subsample_rate: 1.0
+2025-06-06 22:09:38,702 - file_logger - INFO - n_folds: 10
+2025-06-06 22:09:38,702 - file_logger - INFO - use_feature_engineering: True
+2025-06-06 22:09:38,702 - file_logger - INFO - ============================================
+2025-06-06 22:09:38,702 - file_logger - INFO - Loading and preprocessing data...
+2025-06-06 22:09:38,924 - file_logger - INFO - processed\normalized_data.csv
+2025-06-06 22:09:38,924 - file_logger - INFO - Using processed\normalized_data.csv data.
+2025-06-06 22:09:39,363 - file_logger - INFO - Normalized Data Shape
+2025-06-06 22:09:39,363 - file_logger - INFO - (252000, 12)
+2025-06-06 22:09:39,363 - file_logger - INFO - Expected Fused Features Shape: [252000      3]
+2025-06-06 22:09:39,363 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-06 22:09:39,622 - file_logger - INFO - Existed Fused Features Shape: (252000, 8)
+2025-06-06 22:09:39,622 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-06 22:09:39,622 - file_logger - INFO - Using cached fused features: processed\fused_features.csv
+2025-06-06 22:09:39,622 - file_logger - INFO - Performing 10-fold cross-validation...
+2025-06-06 22:09:39,655 - file_logger - INFO - Training fold 1/10...
+2025-06-06 22:19:29,643 - file_logger - INFO - Fold 1 training time: 589.99 seconds
+2025-06-06 22:19:29,834 - file_logger - INFO - Fold 1 results:
+2025-06-06 22:19:29,834 - file_logger - INFO - Accuracy: 0.8699
+2025-06-06 22:19:29,834 - file_logger - INFO - Recall: 0.5357
+2025-06-06 22:19:29,834 - file_logger - INFO - Precision: 0.4743
+2025-06-06 22:19:29,834 - file_logger - INFO - F1-Score: 0.5031
+2025-06-06 22:19:29,835 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20261  1840]
+ [ 1439  1660]]
+2025-06-06 22:19:29,847 - file_logger - INFO - Training fold 2/10...
+2025-06-06 22:29:09,526 - file_logger - INFO - Fold 2 training time: 579.68 seconds
+2025-06-06 22:29:09,726 - file_logger - INFO - Fold 2 results:
+2025-06-06 22:29:09,726 - file_logger - INFO - Accuracy: 0.8754
+2025-06-06 22:29:09,726 - file_logger - INFO - Recall: 0.5286
+2025-06-06 22:29:09,726 - file_logger - INFO - Precision: 0.4937
+2025-06-06 22:29:09,726 - file_logger - INFO - F1-Score: 0.5105
+2025-06-06 22:29:09,730 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20421  1680]
+ [ 1461  1638]]
+2025-06-06 22:29:09,740 - file_logger - INFO - Training fold 3/10...
+2025-06-06 22:45:11,249 - file_logger - INFO - Fold 3 training time: 961.51 seconds
+2025-06-06 22:45:11,557 - file_logger - INFO - Fold 3 results:
+2025-06-06 22:45:11,557 - file_logger - INFO - Accuracy: 0.8698
+2025-06-06 22:45:11,557 - file_logger - INFO - Recall: 0.5321
+2025-06-06 22:45:11,559 - file_logger - INFO - Precision: 0.4739
+2025-06-06 22:45:11,559 - file_logger - INFO - F1-Score: 0.5013
+2025-06-06 22:45:11,559 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20270  1831]
+ [ 1450  1649]]
+2025-06-06 22:45:11,576 - file_logger - INFO - Training fold 4/10...
+2025-06-06 23:01:43,472 - file_logger - INFO - Fold 4 training time: 991.90 seconds
+2025-06-06 23:01:43,711 - file_logger - INFO - Fold 4 results:
+2025-06-06 23:01:43,711 - file_logger - INFO - Accuracy: 0.8797
+2025-06-06 23:01:43,712 - file_logger - INFO - Recall: 0.5108
+2025-06-06 23:01:43,712 - file_logger - INFO - Precision: 0.5108
+2025-06-06 23:01:43,712 - file_logger - INFO - F1-Score: 0.5108
+2025-06-06 23:01:43,713 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20585  1516]
+ [ 1516  1583]]
+2025-06-06 23:01:43,734 - file_logger - INFO - Training fold 5/10...
+2025-06-06 23:17:08,265 - file_logger - INFO - Fold 5 training time: 924.53 seconds
+2025-06-06 23:17:08,446 - file_logger - INFO - Fold 5 results:
+2025-06-06 23:17:08,446 - file_logger - INFO - Accuracy: 0.8739
+2025-06-06 23:17:08,446 - file_logger - INFO - Recall: 0.5210
+2025-06-06 23:17:08,446 - file_logger - INFO - Precision: 0.4884
+2025-06-06 23:17:08,447 - file_logger - INFO - F1-Score: 0.5041
+2025-06-06 23:17:08,447 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20408  1692]
+ [ 1485  1615]]
+2025-06-06 23:17:08,458 - file_logger - INFO - Training fold 6/10...
+2025-06-06 23:27:08,524 - file_logger - INFO - Fold 6 training time: 600.07 seconds
+2025-06-06 23:27:08,712 - file_logger - INFO - Fold 6 results:
+2025-06-06 23:27:08,713 - file_logger - INFO - Accuracy: 0.8826
+2025-06-06 23:27:08,713 - file_logger - INFO - Recall: 0.5271
+2025-06-06 23:27:08,713 - file_logger - INFO - Precision: 0.5227
+2025-06-06 23:27:08,713 - file_logger - INFO - F1-Score: 0.5249
+2025-06-06 23:27:08,714 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20608  1492]
+ [ 1466  1634]]
+2025-06-06 23:27:08,730 - file_logger - INFO - Training fold 7/10...
+2025-06-06 23:37:07,966 - file_logger - INFO - Fold 7 training time: 599.24 seconds
+2025-06-06 23:37:08,143 - file_logger - INFO - Fold 7 results:
+2025-06-06 23:37:08,143 - file_logger - INFO - Accuracy: 0.8767
+2025-06-06 23:37:08,143 - file_logger - INFO - Recall: 0.5116
+2025-06-06 23:37:08,143 - file_logger - INFO - Precision: 0.4991
+2025-06-06 23:37:08,147 - file_logger - INFO - F1-Score: 0.5053
+2025-06-06 23:37:08,147 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20508  1592]
+ [ 1514  1586]]
+2025-06-06 23:37:08,160 - file_logger - INFO - Training fold 8/10...
+2025-06-06 23:47:05,606 - file_logger - INFO - Fold 8 training time: 597.45 seconds
+2025-06-06 23:47:05,784 - file_logger - INFO - Fold 8 results:
+2025-06-06 23:47:05,784 - file_logger - INFO - Accuracy: 0.8842
+2025-06-06 23:47:05,784 - file_logger - INFO - Recall: 0.5139
+2025-06-06 23:47:05,784 - file_logger - INFO - Precision: 0.5303
+2025-06-06 23:47:05,784 - file_logger - INFO - F1-Score: 0.5220
+2025-06-06 23:47:05,786 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20689  1411]
+ [ 1507  1593]]
+2025-06-06 23:47:05,798 - file_logger - INFO - Training fold 9/10...
+2025-06-06 23:57:05,731 - file_logger - INFO - Fold 9 training time: 599.93 seconds
+2025-06-06 23:57:05,950 - file_logger - INFO - Fold 9 results:
+2025-06-06 23:57:05,950 - file_logger - INFO - Accuracy: 0.8650
+2025-06-06 23:57:05,950 - file_logger - INFO - Recall: 0.5484
+2025-06-06 23:57:05,950 - file_logger - INFO - Precision: 0.4592
+2025-06-06 23:57:05,951 - file_logger - INFO - F1-Score: 0.4999
+2025-06-06 23:57:05,951 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20098  2002]
+ [ 1400  1700]]
+2025-06-06 23:57:05,963 - file_logger - INFO - Training fold 10/10...
+2025-06-07 00:07:03,829 - file_logger - INFO - Fold 10 training time: 597.87 seconds
+2025-06-07 00:07:04,021 - file_logger - INFO - Fold 10 results:
+2025-06-07 00:07:04,021 - file_logger - INFO - Accuracy: 0.8814
+2025-06-07 00:07:04,021 - file_logger - INFO - Recall: 0.5174
+2025-06-07 00:07:04,021 - file_logger - INFO - Precision: 0.5179
+2025-06-07 00:07:04,022 - file_logger - INFO - F1-Score: 0.5177
+2025-06-07 00:07:04,022 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[20607  1493]
+ [ 1496  1604]]
+2025-06-07 00:07:04,023 - file_logger - INFO - 
+Training Time Metrics:
+2025-06-07 00:07:04,023 - file_logger - INFO - Total training time: 7045.32 seconds
+2025-06-07 00:07:04,023 - file_logger - INFO - Average fold training time: 704.22 seconds
+2025-06-07 00:07:04,023 - file_logger - INFO - Min fold training time: 579.68 seconds
+2025-06-07 00:07:04,023 - file_logger - INFO - Max fold training time: 991.90 seconds
+2025-06-07 00:07:04,023 - file_logger - INFO - 
+Average results across all folds:
+2025-06-07 00:07:04,025 - file_logger - INFO - Accuracy: 0.8759
+2025-06-07 00:07:04,025 - file_logger - INFO - Recall: 0.5246
+2025-06-07 00:07:04,025 - file_logger - INFO - Precision: 0.4970
+2025-06-07 00:07:04,025 - file_logger - INFO - F1-Score: 0.5099
+2025-06-07 00:07:04,538 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\d_lstm_kfold_metrics.png
+2025-06-07 00:07:04,683 - file_logger - INFO - ================ RUN INFO ================
+2025-06-07 00:07:04,683 - file_logger - INFO - model_name: mlp
+2025-06-07 00:07:04,683 - file_logger - INFO - subsample_rate: 1.0
+2025-06-07 00:07:04,683 - file_logger - INFO - n_folds: 10
+2025-06-07 00:07:04,683 - file_logger - INFO - use_feature_engineering: True
+2025-06-07 00:07:04,683 - file_logger - INFO - ============================================
+2025-06-07 00:07:04,683 - file_logger - INFO - Loading and preprocessing data...
+2025-06-07 00:07:04,926 - file_logger - INFO - processed\normalized_data.csv
+2025-06-07 00:07:04,926 - file_logger - INFO - Using processed\normalized_data.csv data.
+2025-06-07 00:07:05,402 - file_logger - INFO - Normalized Data Shape
+2025-06-07 00:07:05,402 - file_logger - INFO - (252000, 12)
+2025-06-07 00:07:05,402 - file_logger - INFO - Expected Fused Features Shape: [252000      3]
+2025-06-07 00:07:05,402 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 00:07:05,659 - file_logger - INFO - Existed Fused Features Shape: (252000, 8)
+2025-06-07 00:07:05,659 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 00:07:05,660 - file_logger - INFO - Using cached fused features: processed\fused_features.csv
+2025-06-07 00:07:05,660 - file_logger - INFO - Performing 10-fold cross-validation...
+2025-06-07 00:07:05,693 - file_logger - INFO - Training fold 1/10...
+2025-06-07 00:14:42,609 - file_logger - INFO - Fold 1 training time: 456.92 seconds
+2025-06-07 00:14:42,645 - file_logger - INFO - Fold 1 results:
+2025-06-07 00:14:42,645 - file_logger - INFO - Accuracy: 0.6879
+2025-06-07 00:14:42,648 - file_logger - INFO - Recall: 0.5499
+2025-06-07 00:14:42,648 - file_logger - INFO - Precision: 0.2085
+2025-06-07 00:14:42,648 - file_logger - INFO - F1-Score: 0.3023
+2025-06-07 00:14:42,648 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15631  6470]
+ [ 1395  1704]]
+2025-06-07 00:14:42,659 - file_logger - INFO - Training fold 2/10...
+2025-06-07 00:22:14,859 - file_logger - INFO - Fold 2 training time: 452.20 seconds
+2025-06-07 00:22:14,895 - file_logger - INFO - Fold 2 results:
+2025-06-07 00:22:14,895 - file_logger - INFO - Accuracy: 0.6993
+2025-06-07 00:22:14,895 - file_logger - INFO - Recall: 0.5334
+2025-06-07 00:22:14,895 - file_logger - INFO - Precision: 0.2123
+2025-06-07 00:22:14,897 - file_logger - INFO - F1-Score: 0.3037
+2025-06-07 00:22:14,897 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15969  6132]
+ [ 1446  1653]]
+2025-06-07 00:22:14,907 - file_logger - INFO - Training fold 3/10...
+2025-06-07 00:29:54,791 - file_logger - INFO - Fold 3 training time: 459.89 seconds
+2025-06-07 00:29:54,826 - file_logger - INFO - Fold 3 results:
+2025-06-07 00:29:54,826 - file_logger - INFO - Accuracy: 0.6779
+2025-06-07 00:29:54,827 - file_logger - INFO - Recall: 0.5879
+2025-06-07 00:29:54,827 - file_logger - INFO - Precision: 0.2104
+2025-06-07 00:29:54,828 - file_logger - INFO - F1-Score: 0.3099
+2025-06-07 00:29:54,828 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15262  6839]
+ [ 1277  1822]]
+2025-06-07 00:29:54,842 - file_logger - INFO - Training fold 4/10...
+2025-06-07 00:37:33,005 - file_logger - INFO - Fold 4 training time: 458.16 seconds
+2025-06-07 00:37:33,039 - file_logger - INFO - Fold 4 results:
+2025-06-07 00:37:33,039 - file_logger - INFO - Accuracy: 0.6994
+2025-06-07 00:37:33,039 - file_logger - INFO - Recall: 0.5437
+2025-06-07 00:37:33,040 - file_logger - INFO - Precision: 0.2148
+2025-06-07 00:37:33,040 - file_logger - INFO - F1-Score: 0.3079
+2025-06-07 00:37:33,040 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15941  6160]
+ [ 1414  1685]]
+2025-06-07 00:37:33,052 - file_logger - INFO - Training fold 5/10...
+2025-06-07 00:45:13,613 - file_logger - INFO - Fold 5 training time: 460.56 seconds
+2025-06-07 00:45:13,646 - file_logger - INFO - Fold 5 results:
+2025-06-07 00:45:13,647 - file_logger - INFO - Accuracy: 0.6706
+2025-06-07 00:45:13,647 - file_logger - INFO - Recall: 0.5855
+2025-06-07 00:45:13,647 - file_logger - INFO - Precision: 0.2055
+2025-06-07 00:45:13,647 - file_logger - INFO - F1-Score: 0.3042
+2025-06-07 00:45:13,649 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15084  7016]
+ [ 1285  1815]]
+2025-06-07 00:45:13,660 - file_logger - INFO - Training fold 6/10...
+2025-06-07 00:57:12,876 - file_logger - INFO - Fold 6 training time: 719.22 seconds
+2025-06-07 00:57:12,916 - file_logger - INFO - Fold 6 results:
+2025-06-07 00:57:12,918 - file_logger - INFO - Accuracy: 0.7013
+2025-06-07 00:57:12,918 - file_logger - INFO - Recall: 0.5245
+2025-06-07 00:57:12,918 - file_logger - INFO - Precision: 0.2118
+2025-06-07 00:57:12,918 - file_logger - INFO - F1-Score: 0.3017
+2025-06-07 00:57:12,918 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16048  6052]
+ [ 1474  1626]]
+2025-06-07 00:57:12,938 - file_logger - INFO - Training fold 7/10...
+2025-06-07 01:09:44,242 - file_logger - INFO - Fold 7 training time: 751.30 seconds
+2025-06-07 01:09:44,281 - file_logger - INFO - Fold 7 results:
+2025-06-07 01:09:44,281 - file_logger - INFO - Accuracy: 0.6990
+2025-06-07 01:09:44,281 - file_logger - INFO - Recall: 0.5248
+2025-06-07 01:09:44,282 - file_logger - INFO - Precision: 0.2103
+2025-06-07 01:09:44,282 - file_logger - INFO - F1-Score: 0.3002
+2025-06-07 01:09:44,282 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15989  6111]
+ [ 1473  1627]]
+2025-06-07 01:09:44,298 - file_logger - INFO - Training fold 8/10...
+2025-06-07 01:22:27,991 - file_logger - INFO - Fold 8 training time: 763.69 seconds
+2025-06-07 01:22:28,034 - file_logger - INFO - Fold 8 results:
+2025-06-07 01:22:28,034 - file_logger - INFO - Accuracy: 0.6870
+2025-06-07 01:22:28,034 - file_logger - INFO - Recall: 0.5674
+2025-06-07 01:22:28,035 - file_logger - INFO - Precision: 0.2118
+2025-06-07 01:22:28,035 - file_logger - INFO - F1-Score: 0.3084
+2025-06-07 01:22:28,036 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15553  6547]
+ [ 1341  1759]]
+2025-06-07 01:22:28,055 - file_logger - INFO - Training fold 9/10...
+2025-06-07 01:35:07,418 - file_logger - INFO - Fold 9 training time: 759.36 seconds
+2025-06-07 01:35:07,460 - file_logger - INFO - Fold 9 results:
+2025-06-07 01:35:07,460 - file_logger - INFO - Accuracy: 0.6766
+2025-06-07 01:35:07,460 - file_logger - INFO - Recall: 0.5897
+2025-06-07 01:35:07,461 - file_logger - INFO - Precision: 0.2100
+2025-06-07 01:35:07,461 - file_logger - INFO - F1-Score: 0.3097
+2025-06-07 01:35:07,462 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15223  6877]
+ [ 1272  1828]]
+2025-06-07 01:35:07,483 - file_logger - INFO - Training fold 10/10...
+2025-06-07 01:47:43,347 - file_logger - INFO - Fold 10 training time: 755.86 seconds
+2025-06-07 01:47:43,387 - file_logger - INFO - Fold 10 results:
+2025-06-07 01:47:43,389 - file_logger - INFO - Accuracy: 0.7226
+2025-06-07 01:47:43,389 - file_logger - INFO - Recall: 0.4887
+2025-06-07 01:47:43,390 - file_logger - INFO - Precision: 0.2189
+2025-06-07 01:47:43,390 - file_logger - INFO - F1-Score: 0.3024
+2025-06-07 01:47:43,390 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16694  5406]
+ [ 1585  1515]]
+2025-06-07 01:47:43,392 - file_logger - INFO - 
+Training Time Metrics:
+2025-06-07 01:47:43,393 - file_logger - INFO - Total training time: 6038.71 seconds
+2025-06-07 01:47:43,393 - file_logger - INFO - Average fold training time: 603.72 seconds
+2025-06-07 01:47:43,393 - file_logger - INFO - Min fold training time: 452.20 seconds
+2025-06-07 01:47:43,394 - file_logger - INFO - Max fold training time: 763.69 seconds
+2025-06-07 01:47:43,394 - file_logger - INFO - 
+Average results across all folds:
+2025-06-07 01:47:43,395 - file_logger - INFO - Accuracy: 0.6922
+2025-06-07 01:47:43,395 - file_logger - INFO - Recall: 0.5496
+2025-06-07 01:47:43,395 - file_logger - INFO - Precision: 0.2114
+2025-06-07 01:47:43,395 - file_logger - INFO - F1-Score: 0.3051
+2025-06-07 01:47:44,441 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\mlp_kfold_metrics.png
+2025-06-07 01:47:44,733 - file_logger - INFO - ================ RUN INFO ================
+2025-06-07 01:47:44,734 - file_logger - INFO - model_name: cnn_lightgbm
+2025-06-07 01:47:44,734 - file_logger - INFO - subsample_rate: 1.0
+2025-06-07 01:47:44,734 - file_logger - INFO - n_folds: 10
+2025-06-07 01:47:44,735 - file_logger - INFO - use_feature_engineering: True
+2025-06-07 01:47:44,735 - file_logger - INFO - ============================================
+2025-06-07 01:47:44,735 - file_logger - INFO - Loading and preprocessing data...
+2025-06-07 01:47:45,191 - file_logger - INFO - processed\normalized_data.csv
+2025-06-07 01:47:45,192 - file_logger - INFO - Using processed\normalized_data.csv data.
+2025-06-07 01:47:45,917 - file_logger - INFO - Normalized Data Shape
+2025-06-07 01:47:45,917 - file_logger - INFO - (252000, 12)
+2025-06-07 01:47:45,918 - file_logger - INFO - Expected Fused Features Shape: [252000      3]
+2025-06-07 01:47:45,918 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 01:47:46,369 - file_logger - INFO - Existed Fused Features Shape: (252000, 8)
+2025-06-07 01:47:46,370 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 01:47:46,370 - file_logger - INFO - Using cached fused features: processed\fused_features.csv
+2025-06-07 01:47:46,371 - file_logger - INFO - Performing 10-fold cross-validation...
+2025-06-07 01:47:46,420 - file_logger - INFO - Training fold 1/10...
+2025-06-07 01:58:26,230 - file_logger - INFO - Fold 1 training time: 639.81 seconds
+2025-06-07 01:58:26,283 - file_logger - INFO - Fold 1 results:
+2025-06-07 01:58:26,283 - file_logger - INFO - Accuracy: 0.7040
+2025-06-07 01:58:26,283 - file_logger - INFO - Recall: 0.6312
+2025-06-07 01:58:26,283 - file_logger - INFO - Precision: 0.2365
+2025-06-07 01:58:26,285 - file_logger - INFO - F1-Score: 0.3441
+2025-06-07 01:58:26,285 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15786  6315]
+ [ 1143  1956]]
+2025-06-07 01:58:26,299 - file_logger - INFO - Training fold 2/10...
+2025-06-07 02:06:52,371 - file_logger - INFO - Fold 2 training time: 506.07 seconds
+2025-06-07 02:06:52,408 - file_logger - INFO - Fold 2 results:
+2025-06-07 02:06:52,408 - file_logger - INFO - Accuracy: 0.7225
+2025-06-07 02:06:52,408 - file_logger - INFO - Recall: 0.5699
+2025-06-07 02:06:52,408 - file_logger - INFO - Precision: 0.2378
+2025-06-07 02:06:52,408 - file_logger - INFO - F1-Score: 0.3356
+2025-06-07 02:06:52,410 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16442  5659]
+ [ 1333  1766]]
+2025-06-07 02:06:52,424 - file_logger - INFO - Training fold 3/10...
+2025-06-07 02:15:15,006 - file_logger - INFO - Fold 3 training time: 502.58 seconds
+2025-06-07 02:15:15,048 - file_logger - INFO - Fold 3 results:
+2025-06-07 02:15:15,050 - file_logger - INFO - Accuracy: 0.7027
+2025-06-07 02:15:15,050 - file_logger - INFO - Recall: 0.6150
+2025-06-07 02:15:15,050 - file_logger - INFO - Precision: 0.2323
+2025-06-07 02:15:15,050 - file_logger - INFO - F1-Score: 0.3372
+2025-06-07 02:15:15,050 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15802  6299]
+ [ 1193  1906]]
+2025-06-07 02:15:15,064 - file_logger - INFO - Training fold 4/10...
+2025-06-07 02:23:39,606 - file_logger - INFO - Fold 4 training time: 504.54 seconds
+2025-06-07 02:23:39,654 - file_logger - INFO - Fold 4 results:
+2025-06-07 02:23:39,654 - file_logger - INFO - Accuracy: 0.6971
+2025-06-07 02:23:39,654 - file_logger - INFO - Recall: 0.6286
+2025-06-07 02:23:39,654 - file_logger - INFO - Precision: 0.2311
+2025-06-07 02:23:39,654 - file_logger - INFO - F1-Score: 0.3379
+2025-06-07 02:23:39,656 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15618  6483]
+ [ 1151  1948]]
+2025-06-07 02:23:39,670 - file_logger - INFO - Training fold 5/10...
+2025-06-07 02:32:10,384 - file_logger - INFO - Fold 5 training time: 510.71 seconds
+2025-06-07 02:32:10,426 - file_logger - INFO - Fold 5 results:
+2025-06-07 02:32:10,426 - file_logger - INFO - Accuracy: 0.7208
+2025-06-07 02:32:10,426 - file_logger - INFO - Recall: 0.5800
+2025-06-07 02:32:10,427 - file_logger - INFO - Precision: 0.2387
+2025-06-07 02:32:10,427 - file_logger - INFO - F1-Score: 0.3382
+2025-06-07 02:32:10,427 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16365  5735]
+ [ 1302  1798]]
+2025-06-07 02:32:10,444 - file_logger - INFO - Training fold 6/10...
+2025-06-07 02:41:01,761 - file_logger - INFO - Fold 6 training time: 531.32 seconds
+2025-06-07 02:41:01,801 - file_logger - INFO - Fold 6 results:
+2025-06-07 02:41:01,801 - file_logger - INFO - Accuracy: 0.7229
+2025-06-07 02:41:01,801 - file_logger - INFO - Recall: 0.5845
+2025-06-07 02:41:01,801 - file_logger - INFO - Precision: 0.2414
+2025-06-07 02:41:01,801 - file_logger - INFO - F1-Score: 0.3417
+2025-06-07 02:41:01,803 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16405  5695]
+ [ 1288  1812]]
+2025-06-07 02:41:01,815 - file_logger - INFO - Training fold 7/10...
+2025-06-07 02:49:30,334 - file_logger - INFO - Fold 7 training time: 508.52 seconds
+2025-06-07 02:49:30,370 - file_logger - INFO - Fold 7 results:
+2025-06-07 02:49:30,370 - file_logger - INFO - Accuracy: 0.7211
+2025-06-07 02:49:30,370 - file_logger - INFO - Recall: 0.6155
+2025-06-07 02:49:30,372 - file_logger - INFO - Precision: 0.2464
+2025-06-07 02:49:30,372 - file_logger - INFO - F1-Score: 0.3519
+2025-06-07 02:49:30,372 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16264  5836]
+ [ 1192  1908]]
+2025-06-07 02:49:30,384 - file_logger - INFO - Training fold 8/10...
+2025-06-07 02:57:56,965 - file_logger - INFO - Fold 8 training time: 506.58 seconds
+2025-06-07 02:57:57,035 - file_logger - INFO - Fold 8 results:
+2025-06-07 02:57:57,035 - file_logger - INFO - Accuracy: 0.7204
+2025-06-07 02:57:57,035 - file_logger - INFO - Recall: 0.5913
+2025-06-07 02:57:57,035 - file_logger - INFO - Precision: 0.2408
+2025-06-07 02:57:57,036 - file_logger - INFO - F1-Score: 0.3423
+2025-06-07 02:57:57,037 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16322  5778]
+ [ 1267  1833]]
+2025-06-07 02:57:57,051 - file_logger - INFO - Training fold 9/10...
+2025-06-07 03:09:05,625 - file_logger - INFO - Fold 9 training time: 668.57 seconds
+2025-06-07 03:09:05,710 - file_logger - INFO - Fold 9 results:
+2025-06-07 03:09:05,711 - file_logger - INFO - Accuracy: 0.7188
+2025-06-07 03:09:05,711 - file_logger - INFO - Recall: 0.6016
+2025-06-07 03:09:05,711 - file_logger - INFO - Precision: 0.2417
+2025-06-07 03:09:05,712 - file_logger - INFO - F1-Score: 0.3448
+2025-06-07 03:09:05,712 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16248  5852]
+ [ 1235  1865]]
+2025-06-07 03:09:05,730 - file_logger - INFO - Training fold 10/10...
+2025-06-07 03:23:07,148 - file_logger - INFO - Fold 10 training time: 841.42 seconds
+2025-06-07 03:23:07,215 - file_logger - INFO - Fold 10 results:
+2025-06-07 03:23:07,215 - file_logger - INFO - Accuracy: 0.7021
+2025-06-07 03:23:07,215 - file_logger - INFO - Recall: 0.6290
+2025-06-07 03:23:07,217 - file_logger - INFO - Precision: 0.2348
+2025-06-07 03:23:07,217 - file_logger - INFO - F1-Score: 0.3419
+2025-06-07 03:23:07,217 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15744  6356]
+ [ 1150  1950]]
+2025-06-07 03:23:07,218 - file_logger - INFO - 
+Training Time Metrics:
+2025-06-07 03:23:07,218 - file_logger - INFO - Total training time: 5722.49 seconds
+2025-06-07 03:23:07,218 - file_logger - INFO - Average fold training time: 572.01 seconds
+2025-06-07 03:23:07,220 - file_logger - INFO - Min fold training time: 502.58 seconds
+2025-06-07 03:23:07,220 - file_logger - INFO - Max fold training time: 841.42 seconds
+2025-06-07 03:23:07,220 - file_logger - INFO - 
+Average results across all folds:
+2025-06-07 03:23:07,220 - file_logger - INFO - Accuracy: 0.7132
+2025-06-07 03:23:07,220 - file_logger - INFO - Recall: 0.6047
+2025-06-07 03:23:07,220 - file_logger - INFO - Precision: 0.2381
+2025-06-07 03:23:07,220 - file_logger - INFO - F1-Score: 0.3416
+2025-06-07 03:23:08,128 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\cnn_lightgbm_kfold_metrics.png
+2025-06-07 03:23:08,393 - file_logger - INFO - ================ RUN INFO ================
+2025-06-07 03:23:08,393 - file_logger - INFO - model_name: rnn
+2025-06-07 03:23:08,393 - file_logger - INFO - subsample_rate: 1.0
+2025-06-07 03:23:08,393 - file_logger - INFO - n_folds: 10
+2025-06-07 03:23:08,393 - file_logger - INFO - use_feature_engineering: True
+2025-06-07 03:23:08,393 - file_logger - INFO - ============================================
+2025-06-07 03:23:08,393 - file_logger - INFO - Loading and preprocessing data...
+2025-06-07 03:23:08,758 - file_logger - INFO - processed\normalized_data.csv
+2025-06-07 03:23:08,761 - file_logger - INFO - Using processed\normalized_data.csv data.
+2025-06-07 03:23:09,631 - file_logger - INFO - Normalized Data Shape
+2025-06-07 03:23:09,631 - file_logger - INFO - (252000, 12)
+2025-06-07 03:23:09,631 - file_logger - INFO - Expected Fused Features Shape: [252000      3]
+2025-06-07 03:23:09,631 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 03:23:10,109 - file_logger - INFO - Existed Fused Features Shape: (252000, 8)
+2025-06-07 03:23:10,109 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 03:23:10,109 - file_logger - INFO - Using cached fused features: processed\fused_features.csv
+2025-06-07 03:23:10,109 - file_logger - INFO - Performing 10-fold cross-validation...
+2025-06-07 03:23:10,160 - file_logger - INFO - Training fold 1/10...
+2025-06-07 03:32:16,317 - file_logger - INFO - Fold 1 training time: 546.15 seconds
+2025-06-07 03:32:16,397 - file_logger - INFO - Fold 1 results:
+2025-06-07 03:32:16,397 - file_logger - INFO - Accuracy: 0.6912
+2025-06-07 03:32:16,397 - file_logger - INFO - Recall: 0.6092
+2025-06-07 03:32:16,397 - file_logger - INFO - Precision: 0.2232
+2025-06-07 03:32:16,400 - file_logger - INFO - F1-Score: 0.3267
+2025-06-07 03:32:16,400 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15529  6572]
+ [ 1211  1888]]
+2025-06-07 03:32:16,415 - file_logger - INFO - Training fold 2/10...
+2025-06-07 03:41:24,085 - file_logger - INFO - Fold 2 training time: 547.66 seconds
+2025-06-07 03:41:24,164 - file_logger - INFO - Fold 2 results:
+2025-06-07 03:41:24,164 - file_logger - INFO - Accuracy: 0.7384
+2025-06-07 03:41:24,164 - file_logger - INFO - Recall: 0.4966
+2025-06-07 03:41:24,164 - file_logger - INFO - Precision: 0.2342
+2025-06-07 03:41:24,164 - file_logger - INFO - F1-Score: 0.3183
+2025-06-07 03:41:24,166 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17068  5033]
+ [ 1560  1539]]
+2025-06-07 03:41:24,178 - file_logger - INFO - Training fold 3/10...
+2025-06-07 03:50:32,237 - file_logger - INFO - Fold 3 training time: 548.06 seconds
+2025-06-07 03:50:32,317 - file_logger - INFO - Fold 3 results:
+2025-06-07 03:50:32,317 - file_logger - INFO - Accuracy: 0.6850
+2025-06-07 03:50:32,319 - file_logger - INFO - Recall: 0.5970
+2025-06-07 03:50:32,319 - file_logger - INFO - Precision: 0.2166
+2025-06-07 03:50:32,319 - file_logger - INFO - F1-Score: 0.3179
+2025-06-07 03:50:32,319 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15411  6690]
+ [ 1249  1850]]
+2025-06-07 03:50:32,339 - file_logger - INFO - Training fold 4/10...
+2025-06-07 03:59:33,960 - file_logger - INFO - Fold 4 training time: 541.62 seconds
+2025-06-07 03:59:34,037 - file_logger - INFO - Fold 4 results:
+2025-06-07 03:59:34,037 - file_logger - INFO - Accuracy: 0.7292
+2025-06-07 03:59:34,039 - file_logger - INFO - Recall: 0.5240
+2025-06-07 03:59:34,039 - file_logger - INFO - Precision: 0.2329
+2025-06-07 03:59:34,039 - file_logger - INFO - F1-Score: 0.3224
+2025-06-07 03:59:34,039 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16751  5350]
+ [ 1475  1624]]
+2025-06-07 03:59:34,057 - file_logger - INFO - Training fold 5/10...
+2025-06-07 04:09:03,897 - file_logger - INFO - Fold 5 training time: 569.84 seconds
+2025-06-07 04:09:03,977 - file_logger - INFO - Fold 5 results:
+2025-06-07 04:09:03,977 - file_logger - INFO - Accuracy: 0.7055
+2025-06-07 04:09:03,977 - file_logger - INFO - Recall: 0.5713
+2025-06-07 04:09:03,977 - file_logger - INFO - Precision: 0.2252
+2025-06-07 04:09:03,977 - file_logger - INFO - F1-Score: 0.3231
+2025-06-07 04:09:03,977 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16008  6092]
+ [ 1329  1771]]
+2025-06-07 04:09:03,993 - file_logger - INFO - Training fold 6/10...
+2025-06-07 04:18:33,812 - file_logger - INFO - Fold 6 training time: 569.82 seconds
+2025-06-07 04:18:33,885 - file_logger - INFO - Fold 6 results:
+2025-06-07 04:18:33,885 - file_logger - INFO - Accuracy: 0.7034
+2025-06-07 04:18:33,885 - file_logger - INFO - Recall: 0.5497
+2025-06-07 04:18:33,885 - file_logger - INFO - Precision: 0.2189
+2025-06-07 04:18:33,892 - file_logger - INFO - F1-Score: 0.3131
+2025-06-07 04:18:33,892 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16021  6079]
+ [ 1396  1704]]
+2025-06-07 04:18:33,906 - file_logger - INFO - Training fold 7/10...
+2025-06-07 04:27:39,839 - file_logger - INFO - Fold 7 training time: 545.93 seconds
+2025-06-07 04:27:39,915 - file_logger - INFO - Fold 7 results:
+2025-06-07 04:27:39,915 - file_logger - INFO - Accuracy: 0.6741
+2025-06-07 04:27:39,915 - file_logger - INFO - Recall: 0.6171
+2025-06-07 04:27:39,915 - file_logger - INFO - Precision: 0.2140
+2025-06-07 04:27:39,919 - file_logger - INFO - F1-Score: 0.3178
+2025-06-07 04:27:39,919 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15075  7025]
+ [ 1187  1913]]
+2025-06-07 04:27:39,931 - file_logger - INFO - Training fold 8/10...
+2025-06-07 04:37:13,203 - file_logger - INFO - Fold 8 training time: 573.27 seconds
+2025-06-07 04:37:13,282 - file_logger - INFO - Fold 8 results:
+2025-06-07 04:37:13,282 - file_logger - INFO - Accuracy: 0.6951
+2025-06-07 04:37:13,282 - file_logger - INFO - Recall: 0.5868
+2025-06-07 04:37:13,283 - file_logger - INFO - Precision: 0.2213
+2025-06-07 04:37:13,283 - file_logger - INFO - F1-Score: 0.3213
+2025-06-07 04:37:13,283 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15698  6402]
+ [ 1281  1819]]
+2025-06-07 04:37:13,298 - file_logger - INFO - Training fold 9/10...
+2025-06-07 04:47:00,751 - file_logger - INFO - Fold 9 training time: 587.45 seconds
+2025-06-07 04:47:00,832 - file_logger - INFO - Fold 9 results:
+2025-06-07 04:47:00,832 - file_logger - INFO - Accuracy: 0.6763
+2025-06-07 04:47:00,832 - file_logger - INFO - Recall: 0.6013
+2025-06-07 04:47:00,833 - file_logger - INFO - Precision: 0.2122
+2025-06-07 04:47:00,833 - file_logger - INFO - F1-Score: 0.3137
+2025-06-07 04:47:00,833 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[15180  6920]
+ [ 1236  1864]]
+2025-06-07 04:47:00,850 - file_logger - INFO - Training fold 10/10...
+2025-06-07 04:56:49,517 - file_logger - INFO - Fold 10 training time: 588.67 seconds
+2025-06-07 04:56:49,597 - file_logger - INFO - Fold 10 results:
+2025-06-07 04:56:49,597 - file_logger - INFO - Accuracy: 0.7204
+2025-06-07 04:56:49,597 - file_logger - INFO - Recall: 0.5377
+2025-06-07 04:56:49,597 - file_logger - INFO - Precision: 0.2290
+2025-06-07 04:56:49,598 - file_logger - INFO - F1-Score: 0.3212
+2025-06-07 04:56:49,598 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16487  5613]
+ [ 1433  1667]]
+2025-06-07 04:56:49,599 - file_logger - INFO - 
+Training Time Metrics:
+2025-06-07 04:56:49,599 - file_logger - INFO - Total training time: 5621.21 seconds
+2025-06-07 04:56:49,599 - file_logger - INFO - Average fold training time: 561.85 seconds
+2025-06-07 04:56:49,600 - file_logger - INFO - Min fold training time: 541.62 seconds
+2025-06-07 04:56:49,600 - file_logger - INFO - Max fold training time: 588.67 seconds
+2025-06-07 04:56:49,600 - file_logger - INFO - 
+Average results across all folds:
+2025-06-07 04:56:49,600 - file_logger - INFO - Accuracy: 0.7019
+2025-06-07 04:56:49,601 - file_logger - INFO - Recall: 0.5691
+2025-06-07 04:56:49,601 - file_logger - INFO - Precision: 0.2227
+2025-06-07 04:56:49,601 - file_logger - INFO - F1-Score: 0.3196
+2025-06-07 04:56:50,540 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\rnn_kfold_metrics.png
+2025-06-07 04:56:50,772 - file_logger - INFO - ================ RUN INFO ================
+2025-06-07 04:56:50,772 - file_logger - INFO - model_name: random_forest
+2025-06-07 04:56:50,772 - file_logger - INFO - subsample_rate: 1.0
+2025-06-07 04:56:50,772 - file_logger - INFO - n_folds: 10
+2025-06-07 04:56:50,773 - file_logger - INFO - use_feature_engineering: True
+2025-06-07 04:56:50,773 - file_logger - INFO - ============================================
+2025-06-07 04:56:50,773 - file_logger - INFO - Loading and preprocessing data...
+2025-06-07 04:56:51,172 - file_logger - INFO - processed\normalized_data.csv
+2025-06-07 04:56:51,173 - file_logger - INFO - Using processed\normalized_data.csv data.
+2025-06-07 04:56:51,931 - file_logger - INFO - Normalized Data Shape
+2025-06-07 04:56:51,931 - file_logger - INFO - (252000, 12)
+2025-06-07 04:56:51,932 - file_logger - INFO - Expected Fused Features Shape: [252000      3]
+2025-06-07 04:56:51,932 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 04:56:52,393 - file_logger - INFO - Existed Fused Features Shape: (252000, 8)
+2025-06-07 04:56:52,394 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 04:56:52,394 - file_logger - INFO - Using cached fused features: processed\fused_features.csv
+2025-06-07 04:56:52,394 - file_logger - INFO - Performing 10-fold cross-validation...
+2025-06-07 04:56:52,440 - file_logger - INFO - Training fold 1/10...
+2025-06-07 04:58:42,179 - file_logger - INFO - Fold 1 training time: 109.74 seconds
+2025-06-07 04:58:42,514 - file_logger - INFO - Fold 1 results:
+2025-06-07 04:58:42,515 - file_logger - INFO - Accuracy: 0.7560
+2025-06-07 04:58:42,515 - file_logger - INFO - Recall: 0.6012
+2025-06-07 04:58:42,515 - file_logger - INFO - Precision: 0.2749
+2025-06-07 04:58:42,516 - file_logger - INFO - F1-Score: 0.3773
+2025-06-07 04:58:42,516 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17188  4913]
+ [ 1236  1863]]
+2025-06-07 04:58:42,532 - file_logger - INFO - Training fold 2/10...
+2025-06-07 05:00:31,407 - file_logger - INFO - Fold 2 training time: 108.88 seconds
+2025-06-07 05:00:31,750 - file_logger - INFO - Fold 2 results:
+2025-06-07 05:00:31,751 - file_logger - INFO - Accuracy: 0.7594
+2025-06-07 05:00:31,751 - file_logger - INFO - Recall: 0.6063
+2025-06-07 05:00:31,751 - file_logger - INFO - Precision: 0.2795
+2025-06-07 05:00:31,751 - file_logger - INFO - F1-Score: 0.3826
+2025-06-07 05:00:31,752 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17257  4844]
+ [ 1220  1879]]
+2025-06-07 05:00:31,767 - file_logger - INFO - Training fold 3/10...
+2025-06-07 05:02:20,100 - file_logger - INFO - Fold 3 training time: 108.33 seconds
+2025-06-07 05:02:20,428 - file_logger - INFO - Fold 3 results:
+2025-06-07 05:02:20,429 - file_logger - INFO - Accuracy: 0.7479
+2025-06-07 05:02:20,429 - file_logger - INFO - Recall: 0.6547
+2025-06-07 05:02:20,430 - file_logger - INFO - Precision: 0.2775
+2025-06-07 05:02:20,430 - file_logger - INFO - F1-Score: 0.3898
+2025-06-07 05:02:20,431 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16818  5283]
+ [ 1070  2029]]
+2025-06-07 05:02:20,446 - file_logger - INFO - Training fold 4/10...
+2025-06-07 05:04:10,252 - file_logger - INFO - Fold 4 training time: 109.81 seconds
+2025-06-07 05:04:10,580 - file_logger - INFO - Fold 4 results:
+2025-06-07 05:04:10,580 - file_logger - INFO - Accuracy: 0.7544
+2025-06-07 05:04:10,580 - file_logger - INFO - Recall: 0.6125
+2025-06-07 05:04:10,581 - file_logger - INFO - Precision: 0.2757
+2025-06-07 05:04:10,581 - file_logger - INFO - F1-Score: 0.3802
+2025-06-07 05:04:10,581 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17114  4987]
+ [ 1201  1898]]
+2025-06-07 05:04:10,596 - file_logger - INFO - Training fold 5/10...
+2025-06-07 05:05:59,521 - file_logger - INFO - Fold 5 training time: 108.93 seconds
+2025-06-07 05:05:59,871 - file_logger - INFO - Fold 5 results:
+2025-06-07 05:05:59,871 - file_logger - INFO - Accuracy: 0.7442
+2025-06-07 05:05:59,872 - file_logger - INFO - Recall: 0.6765
+2025-06-07 05:05:59,872 - file_logger - INFO - Precision: 0.2781
+2025-06-07 05:05:59,872 - file_logger - INFO - F1-Score: 0.3942
+2025-06-07 05:05:59,873 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[16657  5443]
+ [ 1003  2097]]
+2025-06-07 05:05:59,890 - file_logger - INFO - Training fold 6/10...
+2025-06-07 05:07:48,339 - file_logger - INFO - Fold 6 training time: 108.45 seconds
+2025-06-07 05:07:48,672 - file_logger - INFO - Fold 6 results:
+2025-06-07 05:07:48,674 - file_logger - INFO - Accuracy: 0.7624
+2025-06-07 05:07:48,674 - file_logger - INFO - Recall: 0.5784
+2025-06-07 05:07:48,674 - file_logger - INFO - Precision: 0.2770
+2025-06-07 05:07:48,675 - file_logger - INFO - F1-Score: 0.3746
+2025-06-07 05:07:48,675 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17419  4681]
+ [ 1307  1793]]
+2025-06-07 05:07:48,689 - file_logger - INFO - Training fold 7/10...
+2025-06-07 05:09:39,591 - file_logger - INFO - Fold 7 training time: 110.90 seconds
+2025-06-07 05:09:39,934 - file_logger - INFO - Fold 7 results:
+2025-06-07 05:09:39,934 - file_logger - INFO - Accuracy: 0.7704
+2025-06-07 05:09:39,935 - file_logger - INFO - Recall: 0.5758
+2025-06-07 05:09:39,935 - file_logger - INFO - Precision: 0.2854
+2025-06-07 05:09:39,935 - file_logger - INFO - F1-Score: 0.3816
+2025-06-07 05:09:39,936 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17630  4470]
+ [ 1315  1785]]
+2025-06-07 05:09:39,953 - file_logger - INFO - Training fold 8/10...
+2025-06-07 05:11:26,381 - file_logger - INFO - Fold 8 training time: 106.43 seconds
+2025-06-07 05:11:26,726 - file_logger - INFO - Fold 8 results:
+2025-06-07 05:11:26,726 - file_logger - INFO - Accuracy: 0.7629
+2025-06-07 05:11:26,727 - file_logger - INFO - Recall: 0.6065
+2025-06-07 05:11:26,727 - file_logger - INFO - Precision: 0.2833
+2025-06-07 05:11:26,727 - file_logger - INFO - F1-Score: 0.3862
+2025-06-07 05:11:26,728 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17345  4755]
+ [ 1220  1880]]
+2025-06-07 05:11:26,743 - file_logger - INFO - Training fold 9/10...
+2025-06-07 05:13:15,566 - file_logger - INFO - Fold 9 training time: 108.82 seconds
+2025-06-07 05:13:15,913 - file_logger - INFO - Fold 9 results:
+2025-06-07 05:13:15,914 - file_logger - INFO - Accuracy: 0.7610
+2025-06-07 05:13:15,914 - file_logger - INFO - Recall: 0.6013
+2025-06-07 05:13:15,915 - file_logger - INFO - Precision: 0.2803
+2025-06-07 05:13:15,916 - file_logger - INFO - F1-Score: 0.3823
+2025-06-07 05:13:15,916 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17313  4787]
+ [ 1236  1864]]
+2025-06-07 05:13:15,934 - file_logger - INFO - Training fold 10/10...
+2025-06-07 05:15:06,110 - file_logger - INFO - Fold 10 training time: 110.18 seconds
+2025-06-07 05:15:06,482 - file_logger - INFO - Fold 10 results:
+2025-06-07 05:15:06,482 - file_logger - INFO - Accuracy: 0.7596
+2025-06-07 05:15:06,483 - file_logger - INFO - Recall: 0.5845
+2025-06-07 05:15:06,483 - file_logger - INFO - Precision: 0.2753
+2025-06-07 05:15:06,483 - file_logger - INFO - F1-Score: 0.3743
+2025-06-07 05:15:06,484 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[17331  4769]
+ [ 1288  1812]]
+2025-06-07 05:15:06,486 - file_logger - INFO - 
+Training Time Metrics:
+2025-06-07 05:15:06,487 - file_logger - INFO - Total training time: 1095.72 seconds
+2025-06-07 05:15:06,487 - file_logger - INFO - Average fold training time: 109.05 seconds
+2025-06-07 05:15:06,487 - file_logger - INFO - Min fold training time: 106.43 seconds
+2025-06-07 05:15:06,488 - file_logger - INFO - Max fold training time: 110.90 seconds
+2025-06-07 05:15:06,488 - file_logger - INFO - 
+Average results across all folds:
+2025-06-07 05:15:06,489 - file_logger - INFO - Accuracy: 0.7578
+2025-06-07 05:15:06,489 - file_logger - INFO - Recall: 0.6098
+2025-06-07 05:15:06,489 - file_logger - INFO - Precision: 0.2787
+2025-06-07 05:15:06,489 - file_logger - INFO - F1-Score: 0.3823
+2025-06-07 05:15:07,510 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\random_forest_kfold_metrics.png
+2025-06-07 05:15:07,656 - file_logger - INFO - ================ RUN INFO ================
+2025-06-07 05:15:07,656 - file_logger - INFO - model_name: xgboost
+2025-06-07 05:15:07,656 - file_logger - INFO - subsample_rate: 1.0
+2025-06-07 05:15:07,657 - file_logger - INFO - n_folds: 10
+2025-06-07 05:15:07,657 - file_logger - INFO - use_feature_engineering: True
+2025-06-07 05:15:07,657 - file_logger - INFO - ============================================
+2025-06-07 05:15:07,658 - file_logger - INFO - Loading and preprocessing data...
+2025-06-07 05:15:08,084 - file_logger - INFO - processed\normalized_data.csv
+2025-06-07 05:15:08,084 - file_logger - INFO - Using processed\normalized_data.csv data.
+2025-06-07 05:15:08,900 - file_logger - INFO - Normalized Data Shape
+2025-06-07 05:15:08,900 - file_logger - INFO - (252000, 12)
+2025-06-07 05:15:08,900 - file_logger - INFO - Expected Fused Features Shape: [252000      3]
+2025-06-07 05:15:08,902 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 05:15:09,369 - file_logger - INFO - Existed Fused Features Shape: (252000, 8)
+2025-06-07 05:15:09,370 - file_logger - INFO - Expected Fused Features Shape: [252000      8]
+2025-06-07 05:15:09,370 - file_logger - INFO - Using cached fused features: processed\fused_features.csv
+2025-06-07 05:15:09,371 - file_logger - INFO - Performing 10-fold cross-validation...
+2025-06-07 05:15:09,424 - file_logger - INFO - Training fold 1/10...
+2025-06-07 05:15:11,506 - file_logger - INFO - Fold 1 training time: 2.08 seconds
+2025-06-07 05:15:11,554 - file_logger - INFO - Fold 1 results:
+2025-06-07 05:15:11,556 - file_logger - INFO - Accuracy: 0.9238
+2025-06-07 05:15:11,556 - file_logger - INFO - Recall: 0.6734
+2025-06-07 05:15:11,556 - file_logger - INFO - Precision: 0.6968
+2025-06-07 05:15:11,556 - file_logger - INFO - F1-Score: 0.6849
+2025-06-07 05:15:11,556 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21193   908]
+ [ 1012  2087]]
+2025-06-07 05:15:11,578 - file_logger - INFO - Training fold 2/10...
+2025-06-07 05:15:13,418 - file_logger - INFO - Fold 2 training time: 1.84 seconds
+2025-06-07 05:15:13,461 - file_logger - INFO - Fold 2 results:
+2025-06-07 05:15:13,462 - file_logger - INFO - Accuracy: 0.9261
+2025-06-07 05:15:13,462 - file_logger - INFO - Recall: 0.6444
+2025-06-07 05:15:13,462 - file_logger - INFO - Precision: 0.7241
+2025-06-07 05:15:13,462 - file_logger - INFO - F1-Score: 0.6819
+2025-06-07 05:15:13,463 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21340   761]
+ [ 1102  1997]]
+2025-06-07 05:15:13,487 - file_logger - INFO - Training fold 3/10...
+2025-06-07 05:15:15,266 - file_logger - INFO - Fold 3 training time: 1.78 seconds
+2025-06-07 05:15:15,309 - file_logger - INFO - Fold 3 results:
+2025-06-07 05:15:15,309 - file_logger - INFO - Accuracy: 0.9265
+2025-06-07 05:15:15,310 - file_logger - INFO - Recall: 0.6544
+2025-06-07 05:15:15,310 - file_logger - INFO - Precision: 0.7222
+2025-06-07 05:15:15,310 - file_logger - INFO - F1-Score: 0.6866
+2025-06-07 05:15:15,311 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21321   780]
+ [ 1071  2028]]
+2025-06-07 05:15:15,332 - file_logger - INFO - Training fold 4/10...
+2025-06-07 05:15:17,089 - file_logger - INFO - Fold 4 training time: 1.76 seconds
+2025-06-07 05:15:17,138 - file_logger - INFO - Fold 4 results:
+2025-06-07 05:15:17,139 - file_logger - INFO - Accuracy: 0.9300
+2025-06-07 05:15:17,139 - file_logger - INFO - Recall: 0.6534
+2025-06-07 05:15:17,139 - file_logger - INFO - Precision: 0.7459
+2025-06-07 05:15:17,140 - file_logger - INFO - F1-Score: 0.6966
+2025-06-07 05:15:17,140 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21411   690]
+ [ 1074  2025]]
+2025-06-07 05:15:17,164 - file_logger - INFO - Training fold 5/10...
+2025-06-07 05:15:18,898 - file_logger - INFO - Fold 5 training time: 1.74 seconds
+2025-06-07 05:15:18,949 - file_logger - INFO - Fold 5 results:
+2025-06-07 05:15:18,949 - file_logger - INFO - Accuracy: 0.9282
+2025-06-07 05:15:18,950 - file_logger - INFO - Recall: 0.6529
+2025-06-07 05:15:18,950 - file_logger - INFO - Precision: 0.7339
+2025-06-07 05:15:18,951 - file_logger - INFO - F1-Score: 0.6910
+2025-06-07 05:15:18,951 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21366   734]
+ [ 1076  2024]]
+2025-06-07 05:15:18,974 - file_logger - INFO - Training fold 6/10...
+2025-06-07 05:15:20,869 - file_logger - INFO - Fold 6 training time: 1.90 seconds
+2025-06-07 05:15:20,928 - file_logger - INFO - Fold 6 results:
+2025-06-07 05:15:20,929 - file_logger - INFO - Accuracy: 0.9285
+2025-06-07 05:15:20,929 - file_logger - INFO - Recall: 0.6426
+2025-06-07 05:15:20,929 - file_logger - INFO - Precision: 0.7416
+2025-06-07 05:15:20,929 - file_logger - INFO - F1-Score: 0.6886
+2025-06-07 05:15:20,930 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21406   694]
+ [ 1108  1992]]
+2025-06-07 05:15:20,949 - file_logger - INFO - Training fold 7/10...
+2025-06-07 05:15:22,862 - file_logger - INFO - Fold 7 training time: 1.91 seconds
+2025-06-07 05:15:22,904 - file_logger - INFO - Fold 7 results:
+2025-06-07 05:15:22,904 - file_logger - INFO - Accuracy: 0.9225
+2025-06-07 05:15:22,906 - file_logger - INFO - Recall: 0.6506
+2025-06-07 05:15:22,907 - file_logger - INFO - Precision: 0.6989
+2025-06-07 05:15:22,907 - file_logger - INFO - F1-Score: 0.6739
+2025-06-07 05:15:22,908 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21231   869]
+ [ 1083  2017]]
+2025-06-07 05:15:22,925 - file_logger - INFO - Training fold 8/10...
+2025-06-07 05:15:24,559 - file_logger - INFO - Fold 8 training time: 1.64 seconds
+2025-06-07 05:15:24,604 - file_logger - INFO - Fold 8 results:
+2025-06-07 05:15:24,604 - file_logger - INFO - Accuracy: 0.9229
+2025-06-07 05:15:24,604 - file_logger - INFO - Recall: 0.6861
+2025-06-07 05:15:24,604 - file_logger - INFO - Precision: 0.6866
+2025-06-07 05:15:24,606 - file_logger - INFO - F1-Score: 0.6864
+2025-06-07 05:15:24,606 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21129   971]
+ [  973  2127]]
+2025-06-07 05:15:24,624 - file_logger - INFO - Training fold 9/10...
+2025-06-07 05:15:26,220 - file_logger - INFO - Fold 9 training time: 1.60 seconds
+2025-06-07 05:15:26,265 - file_logger - INFO - Fold 9 results:
+2025-06-07 05:15:26,265 - file_logger - INFO - Accuracy: 0.9252
+2025-06-07 05:15:26,266 - file_logger - INFO - Recall: 0.6529
+2025-06-07 05:15:26,266 - file_logger - INFO - Precision: 0.7142
+2025-06-07 05:15:26,266 - file_logger - INFO - F1-Score: 0.6822
+2025-06-07 05:15:26,267 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21290   810]
+ [ 1076  2024]]
+2025-06-07 05:15:26,285 - file_logger - INFO - Training fold 10/10...
+2025-06-07 05:15:27,944 - file_logger - INFO - Fold 10 training time: 1.66 seconds
+2025-06-07 05:15:27,993 - file_logger - INFO - Fold 10 results:
+2025-06-07 05:15:27,993 - file_logger - INFO - Accuracy: 0.9265
+2025-06-07 05:15:27,994 - file_logger - INFO - Recall: 0.6487
+2025-06-07 05:15:27,994 - file_logger - INFO - Precision: 0.7252
+2025-06-07 05:15:27,994 - file_logger - INFO - F1-Score: 0.6848
+2025-06-07 05:15:27,994 - file_logger - INFO - 
+
+Confusion Matrix: :
+[[21338   762]
+ [ 1089  2011]]
+2025-06-07 05:15:27,996 - file_logger - INFO - 
+Training Time Metrics:
+2025-06-07 05:15:27,997 - file_logger - INFO - Total training time: 20.34 seconds
+2025-06-07 05:15:27,997 - file_logger - INFO - Average fold training time: 1.79 seconds
+2025-06-07 05:15:27,998 - file_logger - INFO - Min fold training time: 1.60 seconds
+2025-06-07 05:15:27,998 - file_logger - INFO - Max fold training time: 2.08 seconds
+2025-06-07 05:15:27,999 - file_logger - INFO - 
+Average results across all folds:
+2025-06-07 05:15:27,999 - file_logger - INFO - Accuracy: 0.9260
+2025-06-07 05:15:27,999 - file_logger - INFO - Recall: 0.6560
+2025-06-07 05:15:27,999 - file_logger - INFO - Precision: 0.7189
+2025-06-07 05:15:28,000 - file_logger - INFO - F1-Score: 0.6857
+2025-06-07 05:15:29,003 - file_logger - INFO - Saved k-fold metrics visualization to charts\kfold_metrics\xgboost_kfold_metrics.png
