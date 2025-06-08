@@ -273,8 +273,8 @@ class LoanRiskPredictorGUI:
 
         figsize1 = (10, 15)
         figsize2 = (7, 7)
-        figsize3 = (8, 6)  # Size for training loss plot
-        figsize4 = (8, 6)  # Size for training time plot
+        figsize3 = (12, 10)  # Size for training loss plot
+        figsize4 = (12, 10)  # Size for training time plot
         
         # Create figures for each tab
         self.fig1 = plt.figure(figsize=figsize1)
@@ -359,7 +359,7 @@ class LoanRiskPredictorGUI:
                 height = bar.get_height()
                 self.ax1.text(bar.get_x() + bar.get_width()/2., height,
                             f'{height:.3f}',
-                            ha='center', va='bottom', fontsize=fontsize -2, rotation=0 , color='#222222')
+                            ha='center', va='bottom', fontsize=fontsize -2, rotation=0 , color='#333333')
         
         add_value_labels(bars1)
         add_value_labels(bars2)
@@ -371,12 +371,13 @@ class LoanRiskPredictorGUI:
         self.ax1.set_facecolor(facecolors[0])
         self.ax1.set_xticks(x)
         self.ax1.set_xticklabels(models, rotation=rotation, fontsize=fontsize-1)
+        self.ax1.set_ylim(0.0, 1.0)  # Set y-axis limits to 0.0-1.0
         self.ax1.legend(loc='upper left', bbox_to_anchor=(1.0, 0.4), facecolor=facecolors[1], fontsize=fontsize)
         self.ax1.grid(True, linestyle='--', alpha=0.7, color=grid_colors[1])
 
         # Horizontal bar chart (ax2)
         y = np.arange(4)  
-        height = 0.65 / len(models)  # Adjust height based on number of models
+        height = 0.65 / len(models)
 
         for i, model in enumerate(models):
             metrics = [avg_metrics['accuracy'][i], avg_metrics['recall'][i], avg_metrics['precision'][i], avg_metrics['f1_score'][i]]
@@ -387,13 +388,14 @@ class LoanRiskPredictorGUI:
                 width = bar.get_width()
                 self.ax2.text(width, bar.get_y() + bar.get_height()/2.,
                             f'{width:.3f}',
-                            ha='left', va='center', fontsize=fontsize-1, color='#222222')
+                            ha='left', va='center', fontsize=fontsize-2, color='#333333')
         
         self.ax2.set_facecolor(facecolors[1])
         self.ax2.set_xlabel('Score', fontsize=fontsize)
         self.ax2.set_title('Model Performance Comparison', fontsize=fontsize*1.2)
         self.ax2.set_yticks(y + height * (len(models) - 1) / 2)
         self.ax2.set_yticklabels(['Accuracy', 'Recall', 'Precision', 'F1-Score'], fontsize=fontsize, rotation=rotation)
+        self.ax2.set_xlim(0.0, 1.0)  # Set x-axis limits to 0.0-1.0 for horizontal bar chart
 
         # Reversing Legend Order
         handles, labels = self.ax2.get_legend_handles_labels()
@@ -482,8 +484,8 @@ class LoanRiskPredictorGUI:
                         final_loss = losses[-1]
                         self.ax4.annotate(f'{final_loss:.4f}',
                                         xy=(len(losses)-1, final_loss),
-                                        xytext=(len(losses)-1, final_loss*1.1),
-                                        arrowprops=dict(facecolor='#333333', shrink=0.05, width=1, headwidth=fontsize, headlength=fontsize),
+                                        xytext=(len(losses)-1, final_loss),
+                                        # arrowprops=dict(facecolor='#333333', shrink=0.05, width=1, headwidth=fontsize, headlength=fontsize),
                                         fontsize=8, rotation=30)
                     except Exception as e:
                         print(f"Error plotting losses for {model_name}: {str(e)}")
@@ -581,8 +583,8 @@ class LoanRiskPredictorGUI:
         graph_dir = self.config.get("data.graph_dir")
         if not os.path.exists(graph_dir):
             os.makedirs(graph_dir)
-        self.fig1.savefig(os.path.join(graph_dir, "performance_metrics.png"))
-        self.fig2.savefig(os.path.join(graph_dir, "model_comparison.png"))
+        self.fig1.savefig(os.path.join(graph_dir, "performance_metrics.png"), dpi=300, bbox_inches='tight')
+        self.fig2.savefig(os.path.join(graph_dir, "model_comparison.png"), dpi=300, bbox_inches='tight')
         if valid_losses:  # Only save if we have valid losses
             self.fig3.savefig(os.path.join(graph_dir, "all_models_training_loss.png"))
         if any(training_times):  # Only save if we have timing data
@@ -621,7 +623,7 @@ class LoanRiskPredictorGUI:
                     ax.text(j + 0.5, i + 0.5, annot[i, j],
                            ha='center', va='center',
                            color=text_color,
-                           fontsize=fontsize)
+                           fontsize=fontsize*1.3)
             
             ax.set_title(f"Confusion Matrix ({model_name})")
             ax.set_xlabel("Predicted")

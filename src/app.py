@@ -143,7 +143,6 @@ class LoanRiskPredictor:
 
             # Create figure with subplots
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8,8))
-
             # Plot metrics for each fold
             folds = range(1, n_folds + 1)
             metrics_to_plot = {
@@ -167,6 +166,7 @@ class LoanRiskPredictor:
             ax1.set_xlabel('Fold', fontsize=10)
             ax1.set_ylabel('Score', fontsize=10)
             ax1.set_xticks(folds)
+            ax1.set_ylim(0.0, 1.0)  # Set y-axis limits to 0.0-1.0
             ax1.grid(True, linestyle='--', alpha=0.7)
             ax1.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
             
@@ -201,6 +201,7 @@ class LoanRiskPredictor:
             ax2.set_title('Average Metrics with Standard Deviation', fontsize=12, pad=20)
             ax2.set_xticks([])  # Remove x-ticks as they're not meaningful for averages
             ax2.set_ylabel('Score', fontsize=10)
+            ax2.set_ylim(0.0, 1.0)  # Set y-axis limits to 0.0-1.0
             ax2.grid(True, linestyle='--', alpha=0.7)
             ax2.legend(loc='upper right', bbox_to_anchor=(1.15, 1))
             

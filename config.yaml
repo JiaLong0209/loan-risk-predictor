@@ -10,7 +10,7 @@ data:
   train_loss_dir: "charts/train_loss"
 
 features:
-  n_features: 5
+  n_features: 6
   categorical_columns:
     - 'Married/Single'
     - 'House_Ownership'
@@ -24,7 +24,7 @@ features:
 
 feature_engineering:
   max_samples: 10000
-  use_weighted_input_for_autoencoder: false  # If false, default to normalized input
+  use_weighted_input_for_autoencoder: true  # If false, default to normalized input
   kraskov_mi:
     k_neighbors: 5
 
@@ -61,7 +61,7 @@ models:
         optimizer: "adam"
 
     autoencoder:
-      epochs: 40
+      epochs: 20
       learning_rate: 0.001
       batch_size: 64
       encoding_size: 3
@@ -120,9 +120,9 @@ models:
       optimizer: "adam"
 
     xgboost:
-      max_depth: 10
+      max_depth: 20
       learning_rate: 0.1
-      num_boost_round: 100
+      num_boost_round: 40
       subsample: 0.8
       colsample_bytree: 0.8
       min_child_weight: 1

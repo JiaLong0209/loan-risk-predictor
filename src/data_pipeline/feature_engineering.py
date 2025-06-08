@@ -83,7 +83,8 @@ class FeatureEngineer:
         weighted_features = X[:, self.selected_indices] * self.feature_weights[self.selected_indices]
         print(f"weighted_features: {weighted_features[0:1, :]}")
 
-        weighted_features = self.standardize_features(weighted_features)
+        # weighted_features = self.standardize_features(weighted_features)
+        weighted_features = self.normalize_features(weighted_features)
         print(f"weighted_features: {weighted_features[0:1, :]}")
 
         # weighted_features = X[:, self.selected_indices] + self.feature_weights[self.selected_indices]

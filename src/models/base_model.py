@@ -80,10 +80,10 @@ class BaseModel(ABC):
 
         # Add final loss value annotation
         final_loss = self.train_losses[-1]
-        plt.annotate(f'Final Loss: {final_loss:.4f}',
+        plt.annotate(f'{final_loss:.4f}',
                     xy=(len(self.train_losses)-1, final_loss),
-                    xytext=(len(self.train_losses)-1, final_loss*1.1),
-                    arrowprops=dict(facecolor='#333333', shrink=0.05, width=1, headwidth=8, headlength=8),
+                    xytext=(len(self.train_losses)-1, final_loss),
+                    # arrowprops=dict(facecolor='#333333', shrink=0.05, width=1, headwidth=8, headlength=8),
                     fontsize=8)
 
         # Save the plot if path is provided or use default
