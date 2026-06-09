@@ -12,6 +12,8 @@ import os
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 from .visualization.visualization_3d import Loss3DVisualizer
+import threading
+import tkinter as tk
 
 class LoanRiskPredictorGUI:
     def __init__(self):
@@ -27,6 +29,19 @@ class LoanRiskPredictorGUI:
         ctk.set_appearance_mode("Dark")
         # Set matplotlib style
         plt.style.use('ggplot')
+
+        # Create PanedWindow for resizable panes
+        # opaqueresize=False prevents lag by only redrawing plots when you let go of the mouse
+        # sashwidth=10 makes the hit detection area larger and easier to grab
+        self.paned_window = tk.PanedWindow(
+            self.root, 
+            orient=tk.HORIZONTAL, 
+            sashwidth=10, 
+            bg="#2b2b2b", 
+            sashcursor="sb_h_double_arrow", 
+            opaqueresize=False
+        )
+        self.paned_window.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
  # Create frames
         self.create_control_frame()
@@ -44,8 +59,8 @@ class LoanRiskPredictorGUI:
     
     def create_control_frame(self):
         """Create the control frame with buttons and options."""
-        control_frame = ctk.CTkFrame(self.root)
-        control_frame.pack(side=ctk.LEFT, fill=ctk.Y, padx=20, pady=20)
+        control_frame = ctk.CTkFrame(self.paned_window)
+        self.paned_window.add(control_frame, minsize=350, padx=5, pady=5)
         
         # Add test evaluation button
         # self.evaluate_test_btn = ctk.CTkButton(
@@ -244,8 +259,8 @@ class LoanRiskPredictorGUI:
 
     def create_results_frame(self):
         """Create the results display frame."""
-        results_frame = ctk.CTkFrame(self.root)
-        results_frame.pack(side=ctk.LEFT, fill=ctk.BOTH, expand=True, padx=0, pady=20)
+        results_frame = ctk.CTkFrame(self.paned_window)
+        self.paned_window.add(results_frame, minsize=400, padx=5, pady=5)
 
         # Results text
         ctk.CTkLabel(results_frame, text="Results").pack(pady=5)
@@ -260,8 +275,8 @@ class LoanRiskPredictorGUI:
     
     def create_charts_frame(self):
         """Create the charts display frame."""
-        charts_frame = ctk.CTkFrame(self.root)
-        charts_frame.pack(side=ctk.RIGHT, fill=ctk.BOTH, expand=True, padx=20, pady=20)
+        charts_frame = ctk.CTkFrame(self.paned_window)
+        self.paned_window.add(charts_frame, minsize=600, padx=5, pady=5)
         
         # Create tabview for different chart types
         self.tabview = ctk.CTkTabview(charts_frame)
@@ -635,7 +650,7 @@ class LoanRiskPredictorGUI:
             os.makedirs(graph_dir)
         self.fig1.savefig(os.path.join(graph_dir, "performance_metrics.png"), dpi=300, bbox_inches='tight')
         self.fig2.savefig(os.path.join(graph_dir, "model_comparison.png"), dpi=300, bbox_inches='tight')
-        if valid_losses:  # Only save if we have valid losses
+        if self.training_losses:  # Only save if we have valid losses
             self.fig3.savefig(os.path.join(graph_dir, "all_models_training_loss.png"))
         if any(training_times):  # Only save if we have timing data
             self.fig4.savefig(os.path.join(graph_dir, "training_time_comparison.png"))
@@ -693,7 +708,9 @@ class LoanRiskPredictorGUI:
             pass
 
     def run_models(self):
-        """Run the selected models and update the display."""
+        """Run the selected models in a background thread."""
+        self.run_button.configure(state="disabled")
+        
         # Update configuration
         self.config.set('models.train_percentage', int(self.train_split.get()))
         n_folds = int(self.k_fold.get()) if self.use_kfold_var.get() else 1
@@ -704,15 +721,23 @@ class LoanRiskPredictorGUI:
         self.results.clear()
         self.confusion_matrices.clear()
         self.training_losses.clear()  # Clear previous training losses
+        
+        self.results_text.insert(ctk.END, "Starting background training...\n")
+        self.root.update()
 
-        # Run selected models
+        # Start background thread
+        thread = threading.Thread(target=self._run_models_task, args=(n_folds, subsample_rate))
+        thread.daemon = True
+        thread.start()
+
+    def _run_models_task(self, n_folds, subsample_rate):
+        """Background task for running models."""
         for model_name, var in self.model_vars.items():
             if var.get():
                 try:
                     self.results_text.insert(ctk.END, f"\nRunning {model_name}...\n")
                     if not self.use_kfold_var.get():
                         self.results_text.insert(ctk.END, "Using single train/test split...\n")
-                    self.root.update()
                     
                     metrics = self.predictor.run(
                         model_name,
@@ -748,8 +773,14 @@ class LoanRiskPredictorGUI:
                 except Exception as e:
                     self.results_text.insert(ctk.END, f"Error: {str(e)}\n")
 
-        # Update charts including training losses
+        # Update charts on the main thread after all models finish
+        self.root.after(0, self._finish_run_models)
+
+    def _finish_run_models(self):
+        """Called on the main thread after background training finishes."""
         self.update_charts()
+        self.results_text.insert(ctk.END, "\n--- All Models Finished ---\n")
+        self.run_button.configure(state="normal")
     
     def run(self):
         """Start the GUI application."""
