@@ -10,6 +10,10 @@ import torch
 import seaborn as sns
 import os
 import pandas as pd
+from mpl_toolkits.mplot3d import Axes3D
+from .visualization.visualization_3d import Loss3DVisualizer
+import threading
+import tkinter as tk
 
 class LoanRiskPredictorGUI:
     def __init__(self):
@@ -25,6 +29,19 @@ class LoanRiskPredictorGUI:
         ctk.set_appearance_mode("Dark")
         # Set matplotlib style
         plt.style.use('ggplot')
+
+        # Create PanedWindow for resizable panes
+        # opaqueresize=False prevents lag by only redrawing plots when you let go of the mouse
+        # sashwidth=10 makes the hit detection area larger and easier to grab
+        self.paned_window = tk.PanedWindow(
+            self.root, 
+            orient=tk.HORIZONTAL, 
+            sashwidth=10, 
+            bg="#2b2b2b", 
+            sashcursor="sb_h_double_arrow", 
+            opaqueresize=False
+        )
+        self.paned_window.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
  # Create frames
         self.create_control_frame()
@@ -42,8 +59,8 @@ class LoanRiskPredictorGUI:
     
     def create_control_frame(self):
         """Create the control frame with buttons and options."""
-        control_frame = ctk.CTkFrame(self.root)
-        control_frame.pack(side=ctk.LEFT, fill=ctk.Y, padx=20, pady=20)
+        control_frame = ctk.CTkFrame(self.paned_window)
+        self.paned_window.add(control_frame, minsize=350, padx=5, pady=5)
         
         # Add test evaluation button
         # self.evaluate_test_btn = ctk.CTkButton(
@@ -74,7 +91,7 @@ class LoanRiskPredictorGUI:
         feature_eng_checkbox.pack(pady=5)
         
         # K-fold toggle
-        self.use_kfold_var = ctk.BooleanVar(value=True)
+        self.use_kfold_var = ctk.BooleanVar(value=False)
         kfold_checkbox = ctk.CTkCheckBox(
             control_frame,
             text="Use K-Fold Cross Validation",
@@ -128,9 +145,9 @@ class LoanRiskPredictorGUI:
         subsample_frame.pack(pady=5, fill=ctk.X)
         ctk.CTkLabel(subsample_frame, text="Subsample Rate (%)").pack(side=ctk.LEFT, padx=5)
         self.subsample_rate = ctk.CTkSlider(subsample_frame, from_=0.1, to=100, number_of_steps=999)
-        self.subsample_rate.set(100)
+        self.subsample_rate.set(1)
         self.subsample_rate.pack(side=ctk.LEFT, padx=5, fill=ctk.X, expand=True)
-        self.subsample_label = ctk.CTkLabel(subsample_frame, text="100%")
+        self.subsample_label = ctk.CTkLabel(subsample_frame, text="1.0%")
         self.subsample_label.pack(side=ctk.LEFT, padx=5)
         self.subsample_rate.configure(command=self.update_subsample_label)
         
@@ -140,20 +157,33 @@ class LoanRiskPredictorGUI:
         ctk.CTkLabel(subsample_entry_frame, text="Enter Subsample:").pack(side=ctk.LEFT, padx=5)
         self.subsample_entry = ctk.CTkEntry(subsample_entry_frame, width=60)
         self.subsample_entry.pack(side=ctk.LEFT, padx=5)
-        self.subsample_entry.insert(0, "100")
+        self.subsample_entry.insert(0, "1")
         self.subsample_entry.bind('<Return>', self.update_subsample_from_entry)
         
         # Model selection
         model_frame = ctk.CTkFrame(control_frame)
         model_frame.pack(pady=5, fill=ctk.X)
-        ctk.CTkLabel(model_frame, text="Select Models").pack(anchor=ctk.W, pady=5)
+        
+        # Header frame for Select Models and Select All button
+        model_header_frame = ctk.CTkFrame(model_frame, fg_color="transparent")
+        model_header_frame.pack(fill=ctk.X, pady=5)
+        ctk.CTkLabel(model_header_frame, text="Select Models").pack(side=ctk.LEFT, anchor=ctk.W)
+        ctk.CTkButton(
+            model_header_frame, 
+            text="Toggle All", 
+            width=60, 
+            height=24, 
+            command=self.toggle_all_models
+        ).pack(side=ctk.RIGHT, padx=5)
+
         self.model_vars = {}
 
         # model_names = ["d_lstm_mlp", "d_lstm", "mlp", "cnn_lightgbm", "dnn", "rnn", "random_forest", "xgboost"]
         model_names = ["d_lstm_mlp", "d_lstm", "mlp", "cnn_lightgbm", "rnn", "random_forest", "xgboost"]
         
         for model in model_names:
-            var = ctk.BooleanVar(value=True)
+            is_checked = (model == "d_lstm")
+            var = ctk.BooleanVar(value=is_checked)
             self.model_vars[model] = var
             ctk.CTkCheckBox(model_frame, text=model, variable=var).pack(anchor=ctk.W, pady=2)
         
@@ -166,6 +196,13 @@ class LoanRiskPredictorGUI:
         )
         self.run_button.pack(pady=20)
     
+    def toggle_all_models(self):
+        """Toggle all model checkboxes on or off."""
+        all_selected = all(var.get() for var in self.model_vars.values())
+        new_state = not all_selected
+        for var in self.model_vars.values():
+            var.set(new_state)
+
     def update_train_split_from_entry(self, event=None):
         """Update train split from entry field."""
         try:
@@ -242,8 +279,8 @@ class LoanRiskPredictorGUI:
 
     def create_results_frame(self):
         """Create the results display frame."""
-        results_frame = ctk.CTkFrame(self.root)
-        results_frame.pack(side=ctk.LEFT, fill=ctk.BOTH, expand=True, padx=0, pady=20)
+        results_frame = ctk.CTkFrame(self.paned_window)
+        self.paned_window.add(results_frame, minsize=400, padx=5, pady=5)
 
         # Results text
         ctk.CTkLabel(results_frame, text="Results").pack(pady=5)
@@ -258,8 +295,8 @@ class LoanRiskPredictorGUI:
     
     def create_charts_frame(self):
         """Create the charts display frame."""
-        charts_frame = ctk.CTkFrame(self.root)
-        charts_frame.pack(side=ctk.RIGHT, fill=ctk.BOTH, expand=True, padx=20, pady=20)
+        charts_frame = ctk.CTkFrame(self.paned_window)
+        self.paned_window.add(charts_frame, minsize=600, padx=5, pady=5)
         
         # Create tabview for different chart types
         self.tabview = ctk.CTkTabview(charts_frame)
@@ -270,6 +307,7 @@ class LoanRiskPredictorGUI:
         self.tabview.add("Model Comparison")
         self.tabview.add("Training Losses")
         self.tabview.add("Training Time")  # Add new tab for training time
+        self.tabview.add("3D Visualizations")
 
         figsize1 = (10, 15)
         figsize2 = (7, 7)
@@ -301,11 +339,18 @@ class LoanRiskPredictorGUI:
         self.canvas4 = FigureCanvasTkAgg(self.fig4, master=self.tabview.tab("Training Time"))
         self.canvas4.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
 
+        # Create figure for 3D visualizations
+        self.fig5 = plt.figure(figsize=(12, 10))
+        self.ax6 = self.fig5.add_subplot(111, projection='3d')
+        self.canvas5 = FigureCanvasTkAgg(self.fig5, master=self.tabview.tab("3D Visualizations"))
+        self.canvas5.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
+
         # Adjust layout to accommodate the legend
         self.fig1.subplots_adjust(left=0.1, right=0.8, hspace=0.2, wspace=0.2, top=0.95, bottom=0.05)
         self.fig2.subplots_adjust(right=0.9)
         self.fig3.subplots_adjust(right=0.95)  # Adjust for legend
         self.fig4.subplots_adjust(right=0.95)  # Adjust for legend
+        self.fig5.subplots_adjust(right=0.95)
 
     def update_charts(self):
         """Update the charts with the latest results."""
@@ -315,6 +360,7 @@ class LoanRiskPredictorGUI:
         self.ax3.clear()
         self.ax4.clear()
         self.ax5.clear()  # Clear training time plot
+        self.ax6.clear()
         
         # Prepare data for charts
         models = list(self.results.keys())
@@ -553,6 +599,44 @@ class LoanRiskPredictorGUI:
             self.ax5.set_xticks([])
             self.ax5.set_yticks([])
 
+        # Update 3D visualization plot
+        if self.training_losses:
+            valid_losses_3d = {}
+            for model_name, losses in self.training_losses.items():
+                if model_name == "d_lstm_mlp" and isinstance(losses, dict):
+                    if losses.get('lstm') and isinstance(losses['lstm'], list) and len(losses['lstm']) > 0:
+                        valid_losses_3d[f"{model_name}-lstm"] = losses['lstm']
+                    if losses.get('mlp') and isinstance(losses['mlp'], list) and len(losses['mlp']) > 0:
+                        valid_losses_3d[f"{model_name}-mlp"] = losses['mlp']
+                elif isinstance(losses, list) and len(losses) > 0:
+                    valid_losses_3d[model_name] = losses
+            
+            if valid_losses_3d and len(valid_losses_3d) > 0:
+                try:
+                    model_names = list(valid_losses_3d.keys())
+                    colors = plt.cm.Set3(np.linspace(0, 1, len(model_names)))
+                    
+                    for i, (model_name, losses) in enumerate(valid_losses_3d.items()):
+                        losses = np.array(losses)
+                        epochs = np.arange(len(losses))
+                        model_indices = np.full_like(epochs, i, dtype=float)
+                        
+                        self.ax6.plot(epochs, model_indices, losses,
+                                    color=colors[i], marker='o', markersize=3,
+                                    linewidth=2, label=model_name, alpha=0.8)
+                    
+                    self.ax6.set_xlabel('Epoch', fontsize=10, fontweight='bold')
+                    self.ax6.set_ylabel('Model', fontsize=10, fontweight='bold')
+                    self.ax6.set_zlabel('Loss', fontsize=10, fontweight='bold')
+                    self.ax6.set_title('3D Loss Trajectory Comparison', fontsize=12, fontweight='bold')
+                    self.ax6.set_yticks(range(len(model_names)))
+                    self.ax6.set_yticklabels(model_names, fontsize=8)
+                    self.ax6.legend(loc='upper left', fontsize=8)
+                    self.ax6.view_init(elev=20, azim=45)
+                    
+                except Exception as e:
+                    print(f"Error creating 3D visualization: {str(e)}")
+
         # Update the results text display
         def update_results_text():
             self.results_text.delete("1.0", ctk.END)
@@ -578,6 +662,7 @@ class LoanRiskPredictorGUI:
         self.canvas2.draw()
         self.canvas3.draw()
         self.canvas4.draw()
+        self.canvas5.draw()
 
         # Save charts
         graph_dir = self.config.get("data.graph_dir")
@@ -585,7 +670,7 @@ class LoanRiskPredictorGUI:
             os.makedirs(graph_dir)
         self.fig1.savefig(os.path.join(graph_dir, "performance_metrics.png"), dpi=300, bbox_inches='tight')
         self.fig2.savefig(os.path.join(graph_dir, "model_comparison.png"), dpi=300, bbox_inches='tight')
-        if valid_losses:  # Only save if we have valid losses
+        if self.training_losses:  # Only save if we have valid losses
             self.fig3.savefig(os.path.join(graph_dir, "all_models_training_loss.png"))
         if any(training_times):  # Only save if we have timing data
             self.fig4.savefig(os.path.join(graph_dir, "training_time_comparison.png"))
@@ -643,7 +728,9 @@ class LoanRiskPredictorGUI:
             pass
 
     def run_models(self):
-        """Run the selected models and update the display."""
+        """Run the selected models in a background thread."""
+        self.run_button.configure(state="disabled")
+        
         # Update configuration
         self.config.set('models.train_percentage', int(self.train_split.get()))
         n_folds = int(self.k_fold.get()) if self.use_kfold_var.get() else 1
@@ -654,15 +741,23 @@ class LoanRiskPredictorGUI:
         self.results.clear()
         self.confusion_matrices.clear()
         self.training_losses.clear()  # Clear previous training losses
+        
+        self.results_text.insert(ctk.END, "Starting background training...\n")
+        self.root.update()
 
-        # Run selected models
+        # Start background thread
+        thread = threading.Thread(target=self._run_models_task, args=(n_folds, subsample_rate))
+        thread.daemon = True
+        thread.start()
+
+    def _run_models_task(self, n_folds, subsample_rate):
+        """Background task for running models."""
         for model_name, var in self.model_vars.items():
             if var.get():
                 try:
                     self.results_text.insert(ctk.END, f"\nRunning {model_name}...\n")
                     if not self.use_kfold_var.get():
                         self.results_text.insert(ctk.END, "Using single train/test split...\n")
-                    self.root.update()
                     
                     metrics = self.predictor.run(
                         model_name,
@@ -698,8 +793,14 @@ class LoanRiskPredictorGUI:
                 except Exception as e:
                     self.results_text.insert(ctk.END, f"Error: {str(e)}\n")
 
-        # Update charts including training losses
+        # Update charts on the main thread after all models finish
+        self.root.after(0, self._finish_run_models)
+
+    def _finish_run_models(self):
+        """Called on the main thread after background training finishes."""
         self.update_charts()
+        self.results_text.insert(ctk.END, "\n--- All Models Finished ---\n")
+        self.run_button.configure(state="normal")
     
     def run(self):
         """Start the GUI application."""
