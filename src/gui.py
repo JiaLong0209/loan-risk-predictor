@@ -91,7 +91,7 @@ class LoanRiskPredictorGUI:
         feature_eng_checkbox.pack(pady=5)
         
         # K-fold toggle
-        self.use_kfold_var = ctk.BooleanVar(value=True)
+        self.use_kfold_var = ctk.BooleanVar(value=False)
         kfold_checkbox = ctk.CTkCheckBox(
             control_frame,
             text="Use K-Fold Cross Validation",
@@ -145,9 +145,9 @@ class LoanRiskPredictorGUI:
         subsample_frame.pack(pady=5, fill=ctk.X)
         ctk.CTkLabel(subsample_frame, text="Subsample Rate (%)").pack(side=ctk.LEFT, padx=5)
         self.subsample_rate = ctk.CTkSlider(subsample_frame, from_=0.1, to=100, number_of_steps=999)
-        self.subsample_rate.set(100)
+        self.subsample_rate.set(1)
         self.subsample_rate.pack(side=ctk.LEFT, padx=5, fill=ctk.X, expand=True)
-        self.subsample_label = ctk.CTkLabel(subsample_frame, text="100%")
+        self.subsample_label = ctk.CTkLabel(subsample_frame, text="1.0%")
         self.subsample_label.pack(side=ctk.LEFT, padx=5)
         self.subsample_rate.configure(command=self.update_subsample_label)
         
@@ -157,20 +157,33 @@ class LoanRiskPredictorGUI:
         ctk.CTkLabel(subsample_entry_frame, text="Enter Subsample:").pack(side=ctk.LEFT, padx=5)
         self.subsample_entry = ctk.CTkEntry(subsample_entry_frame, width=60)
         self.subsample_entry.pack(side=ctk.LEFT, padx=5)
-        self.subsample_entry.insert(0, "100")
+        self.subsample_entry.insert(0, "1")
         self.subsample_entry.bind('<Return>', self.update_subsample_from_entry)
         
         # Model selection
         model_frame = ctk.CTkFrame(control_frame)
         model_frame.pack(pady=5, fill=ctk.X)
-        ctk.CTkLabel(model_frame, text="Select Models").pack(anchor=ctk.W, pady=5)
+        
+        # Header frame for Select Models and Select All button
+        model_header_frame = ctk.CTkFrame(model_frame, fg_color="transparent")
+        model_header_frame.pack(fill=ctk.X, pady=5)
+        ctk.CTkLabel(model_header_frame, text="Select Models").pack(side=ctk.LEFT, anchor=ctk.W)
+        ctk.CTkButton(
+            model_header_frame, 
+            text="Toggle All", 
+            width=60, 
+            height=24, 
+            command=self.toggle_all_models
+        ).pack(side=ctk.RIGHT, padx=5)
+
         self.model_vars = {}
 
         # model_names = ["d_lstm_mlp", "d_lstm", "mlp", "cnn_lightgbm", "dnn", "rnn", "random_forest", "xgboost"]
         model_names = ["d_lstm_mlp", "d_lstm", "mlp", "cnn_lightgbm", "rnn", "random_forest", "xgboost"]
         
         for model in model_names:
-            var = ctk.BooleanVar(value=True)
+            is_checked = (model == "d_lstm")
+            var = ctk.BooleanVar(value=is_checked)
             self.model_vars[model] = var
             ctk.CTkCheckBox(model_frame, text=model, variable=var).pack(anchor=ctk.W, pady=2)
         
@@ -183,6 +196,13 @@ class LoanRiskPredictorGUI:
         )
         self.run_button.pack(pady=20)
     
+    def toggle_all_models(self):
+        """Toggle all model checkboxes on or off."""
+        all_selected = all(var.get() for var in self.model_vars.values())
+        new_state = not all_selected
+        for var in self.model_vars.values():
+            var.set(new_state)
+
     def update_train_split_from_entry(self, event=None):
         """Update train split from entry field."""
         try:
