@@ -10,6 +10,8 @@ import torch
 import seaborn as sns
 import os
 import pandas as pd
+from mpl_toolkits.mplot3d import Axes3D
+from .visualization.visualization_3d import Loss3DVisualizer
 
 class LoanRiskPredictorGUI:
     def __init__(self):
@@ -270,6 +272,7 @@ class LoanRiskPredictorGUI:
         self.tabview.add("Model Comparison")
         self.tabview.add("Training Losses")
         self.tabview.add("Training Time")  # Add new tab for training time
+        self.tabview.add("3D Visualizations")
 
         figsize1 = (10, 15)
         figsize2 = (7, 7)
@@ -301,11 +304,18 @@ class LoanRiskPredictorGUI:
         self.canvas4 = FigureCanvasTkAgg(self.fig4, master=self.tabview.tab("Training Time"))
         self.canvas4.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
 
+        # Create figure for 3D visualizations
+        self.fig5 = plt.figure(figsize=(12, 10))
+        self.ax6 = self.fig5.add_subplot(111, projection='3d')
+        self.canvas5 = FigureCanvasTkAgg(self.fig5, master=self.tabview.tab("3D Visualizations"))
+        self.canvas5.get_tk_widget().pack(fill=ctk.BOTH, expand=True)
+
         # Adjust layout to accommodate the legend
         self.fig1.subplots_adjust(left=0.1, right=0.8, hspace=0.2, wspace=0.2, top=0.95, bottom=0.05)
         self.fig2.subplots_adjust(right=0.9)
         self.fig3.subplots_adjust(right=0.95)  # Adjust for legend
         self.fig4.subplots_adjust(right=0.95)  # Adjust for legend
+        self.fig5.subplots_adjust(right=0.95)
 
     def update_charts(self):
         """Update the charts with the latest results."""
@@ -315,6 +325,7 @@ class LoanRiskPredictorGUI:
         self.ax3.clear()
         self.ax4.clear()
         self.ax5.clear()  # Clear training time plot
+        self.ax6.clear()
         
         # Prepare data for charts
         models = list(self.results.keys())
@@ -553,6 +564,44 @@ class LoanRiskPredictorGUI:
             self.ax5.set_xticks([])
             self.ax5.set_yticks([])
 
+        # Update 3D visualization plot
+        if self.training_losses:
+            valid_losses_3d = {}
+            for model_name, losses in self.training_losses.items():
+                if model_name == "d_lstm_mlp" and isinstance(losses, dict):
+                    if losses.get('lstm') and isinstance(losses['lstm'], list) and len(losses['lstm']) > 0:
+                        valid_losses_3d[f"{model_name}-lstm"] = losses['lstm']
+                    if losses.get('mlp') and isinstance(losses['mlp'], list) and len(losses['mlp']) > 0:
+                        valid_losses_3d[f"{model_name}-mlp"] = losses['mlp']
+                elif isinstance(losses, list) and len(losses) > 0:
+                    valid_losses_3d[model_name] = losses
+            
+            if valid_losses_3d and len(valid_losses_3d) > 0:
+                try:
+                    model_names = list(valid_losses_3d.keys())
+                    colors = plt.cm.Set3(np.linspace(0, 1, len(model_names)))
+                    
+                    for i, (model_name, losses) in enumerate(valid_losses_3d.items()):
+                        losses = np.array(losses)
+                        epochs = np.arange(len(losses))
+                        model_indices = np.full_like(epochs, i, dtype=float)
+                        
+                        self.ax6.plot(epochs, model_indices, losses,
+                                    color=colors[i], marker='o', markersize=3,
+                                    linewidth=2, label=model_name, alpha=0.8)
+                    
+                    self.ax6.set_xlabel('Epoch', fontsize=10, fontweight='bold')
+                    self.ax6.set_ylabel('Model', fontsize=10, fontweight='bold')
+                    self.ax6.set_zlabel('Loss', fontsize=10, fontweight='bold')
+                    self.ax6.set_title('3D Loss Trajectory Comparison', fontsize=12, fontweight='bold')
+                    self.ax6.set_yticks(range(len(model_names)))
+                    self.ax6.set_yticklabels(model_names, fontsize=8)
+                    self.ax6.legend(loc='upper left', fontsize=8)
+                    self.ax6.view_init(elev=20, azim=45)
+                    
+                except Exception as e:
+                    print(f"Error creating 3D visualization: {str(e)}")
+
         # Update the results text display
         def update_results_text():
             self.results_text.delete("1.0", ctk.END)
@@ -578,6 +627,7 @@ class LoanRiskPredictorGUI:
         self.canvas2.draw()
         self.canvas3.draw()
         self.canvas4.draw()
+        self.canvas5.draw()
 
         # Save charts
         graph_dir = self.config.get("data.graph_dir")
